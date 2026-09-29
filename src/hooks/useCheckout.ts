@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { storeConfig } from '../data/storeConfig';
 import { ROUTES } from '../routes';
 import { getOrderUrl, openWhatsApp } from '../services/whatsappService';
 import type { CheckoutErrors, CheckoutField, CheckoutFormData, OrderConfirmation } from '../types/order';
@@ -9,12 +8,13 @@ import { calculateOrderTotals } from '../utils/pricing';
 import { validateCheckout } from '../utils/validation';
 import { useCart } from './useCart';
 import { useCatalog } from './useCatalog';
+import { useStoreSettings } from './useStoreSettings';
 import { useStoreStatus } from './useStoreStatus';
 
 const INITIAL_FORM: CheckoutFormData = {
   name: '',
   phone: '',
-  orderType: storeConfig.deliveryEnabled ? 'delivery' : 'pickup',
+  orderType: 'delivery',
   street: '',
   number: '',
   district: '',
@@ -49,8 +49,18 @@ export function useCheckout() {
   const { categories } = useCatalog();
   const { items, clearCart } = useCart();
   const { isOpen, nextOpenDay, nextOpenTime } = useStoreStatus();
+  const { deliveryEnabled, pickupEnabled, deliveryFee } = useStoreSettings();
 
   const [form, setForm] = useState(INITIAL_FORM);
+
+  // Se a loja desativar entrega (ou retirada) no painel, troca para a opção disponível.
+  const orderType =
+    form.orderType === 'delivery' && !deliveryEnabled && pickupEnabled
+      ? 'pickup'
+      : form.orderType === 'pickup' && !pickupEnabled && deliveryEnabled
+        ? 'delivery'
+        : form.orderType;
+  const currentForm = orderType === form.orderType ? form : { ...form, orderType };
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [hasSendError, setHasSendError] = useState(false);
 
@@ -60,11 +70,11 @@ export function useCheckout() {
     setHasSendError(false);
   }, []);
 
-  const totals = calculateOrderTotals(items, form.orderType, storeConfig.deliveryFee);
+  const totals = calculateOrderTotals(items, orderType, deliveryFee);
   const isEmpty = items.length === 0;
 
   const submit = () => {
-    const validationErrors = validateCheckout(form);
+    const validationErrors = validateCheckout(currentForm);
     const firstInvalid = Object.keys(validationErrors)[0] as CheckoutField | undefined;
     setErrors(validationErrors);
     if (firstInvalid) {
@@ -72,7 +82,7 @@ export function useCheckout() {
       return;
     }
 
-    const order = createOrder(form, items, categories, storeConfig.deliveryFee);
+    const order = createOrder(currentForm, items, categories, deliveryFee);
     const whatsappUrl = getOrderUrl(order);
     if (!openWhatsApp(whatsappUrl)) {
       setHasSendError(true);
@@ -82,7 +92,7 @@ export function useCheckout() {
     const confirmation: OrderConfirmation = {
       id: order.id,
       total: order.total,
-      orderType: form.orderType,
+      orderType,
       paymentMethod: form.paymentMethod,
       whatsappUrl,
     };
@@ -91,7 +101,7 @@ export function useCheckout() {
   };
 
   return {
-    form,
+    form: currentForm,
     errors,
     setField,
     items,

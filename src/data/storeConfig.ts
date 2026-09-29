@@ -1,10 +1,10 @@
-import type { StoreConfig } from '../types/store';
+import type { StoreInfo, StoreSettings } from '../types/store';
 
 /**
- * Dados da loja centralizados. Nenhum telefone, endereço ou rede social
- * deve ficar espalhado pelos componentes.
+ * Dados fixos da loja. Nenhum telefone, endereço ou rede social deve ficar
+ * espalhado pelos componentes.
  */
-export const storeConfig: StoreConfig = {
+export const storeConfig: StoreInfo = {
   name: 'S.O.S Delivery Videira',
   shortName: 'S.O.S Delivery',
   tagline: 'Hambúrguer artesanal feito na hora. Deu fome, chama que a gente resgata.',
@@ -18,26 +18,27 @@ export const storeConfig: StoreConfig = {
   state: 'SC',
   zipCode: '89560-170',
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Rua+Saul+Brandalise%2C+588%2C+Centro%2C+Videira+-+SC%2C+89560-170',
+};
+
+/**
+ * Horários, entrega e status da loja. Com o Supabase configurado, estes
+ * valores são substituídos pelos salvos no painel `/admin`; aqui ficam só
+ * como padrão (e para quando o banco não responder).
+ */
+export const defaultStoreSettings: StoreSettings = {
+  statusOverride: 'auto',
+  weeklyHours: [
+    { day: 1, opensAt: null, closesAt: null },
+    { day: 2, opensAt: null, closesAt: null },
+    { day: 3, opensAt: 19, closesAt: 23 },
+    { day: 4, opensAt: 19, closesAt: 23 },
+    { day: 5, opensAt: 19, closesAt: 23 },
+    { day: 6, opensAt: 19, closesAt: 23 },
+    { day: 0, opensAt: 19, closesAt: 23 },
+  ],
   deliveryEnabled: true,
   pickupEnabled: true,
-  /** Taxa de entrega em reais. 0 = entrega grátis. */
   deliveryFee: 0,
   deliveryEta: '~40 min',
   pickupEta: '~20 min',
-  /**
-   * Horários de funcionamento. Para alterar, edite as linhas abaixo:
-   * - `days`: 0 = domingo, 1 = segunda … 6 = sábado.
-   * - `opensAt` / `closesAt`: hora cheia (0–24; 24 = meia-noite).
-   * - Dia fechado: `opensAt: null, closesAt: null`.
-   * Todo dia da semana deve aparecer em exatamente uma linha.
-   */
-  openingHours: [
-    { label: 'Segunda e Terça', shortLabel: 'Seg e Ter', days: [1, 2], opensAt: null, closesAt: null },
-    { label: 'Quarta a Domingo', shortLabel: 'Qua a Dom', days: [3, 4, 5, 6, 0], opensAt: 19, closesAt: 23 },
-  ],
-  /**
-   * 'auto' segue os horários acima. Use 'open' ou 'closed' para forçar o status
-   * (feriado, folga, evento) e volte para 'auto' depois.
-   */
-  statusOverride: 'auto',
 };

@@ -17,6 +17,8 @@ interface CartState {
   updateQuantity: (key: string, quantity: number) => void;
   removeItem: (key: string) => void;
   clearCart: () => void;
+  /** Atualiza nomes e preços pelo cardápio atual e remove itens que saíram do cardápio ou estão indisponíveis. */
+  syncWithCatalog: (products: Product[]) => void;
 }
 
 /** Mesma combinação de produto + adicionais + observação vira uma única linha. */
@@ -70,6 +72,38 @@ export const useCartStore = create<CartState>()(
       removeItem: (key) => set((state) => ({ items: state.items.filter((item) => item.key !== key) })),
 
       clearCart: () => set({ items: [] }),
+
+      syncWithCatalog: (products) =>
+        set((state) => {
+          const productsById = new Map(products.map((product) => [product.id, product]));
+          const synced: CartItem[] = [];
+
+          for (const item of state.items) {
+            const product = productsById.get(item.productId);
+            if (!product?.available) continue;
+
+            const addonsById = new Map((product.addons ?? []).map((addon) => [addon.id, addon]));
+            const addons = item.addons.flatMap((addon) => addonsById.get(addon.id) ?? []);
+            const key = buildItemKey(product.id, addons, item.note);
+            const existing = synced.find((line) => line.key === key);
+            if (existing) {
+              existing.quantity += item.quantity;
+              continue;
+            }
+
+            synced.push({
+              ...item,
+              key,
+              categoryId: product.categoryId,
+              name: product.name,
+              image: product.image,
+              unitPrice: calculateUnitPrice(product.price, addons),
+              addons,
+            });
+          }
+
+          return { items: synced };
+        }),
     }),
     {
       name: 'sos-delivery-cart',

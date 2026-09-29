@@ -1,18 +1,10 @@
-import batataBaconCheddar from '../assets/images/batata-bacon-cheddar.webp';
-import brigadaDaFome from '../assets/images/brigada-da-fome.webp';
-import combateDuplo from '../assets/images/combate-duplo.webp';
-import operacaoCrocante from '../assets/images/operacao-crocante.webp';
-import resgateDoPescador from '../assets/images/resgate-do-pescador.webp';
-import resgateEmEquipe from '../assets/images/resgate-em-equipe.webp';
-import resgateRapido from '../assets/images/resgate-rapido.webp';
-import resgateSupremo from '../assets/images/resgate-supremo.webp';
-import sosBravo from '../assets/images/sos-bravo.webp';
 import type { Product } from '../types/product';
 
 /**
- * Cardápio. Os preços ainda não foram definidos: todos os itens estão com
- * `price: 0` e `available: false`. Para liberar um item, preencha o preço
- * (ex.: `price: 32.9`) e troque para `available: true`.
+ * Cardápio padrão. Com o Supabase configurado, o cardápio vem da tabela
+ * `products` (editada no painel `/admin`) e esta lista só é usada quando o
+ * banco não responder. Os preços ainda não foram definidos: todos os itens
+ * estão com `price: 0` e `available: false`.
  */
 export const products: Product[] = [
   {
@@ -21,7 +13,7 @@ export const products: Product[] = [
     name: 'Brigada da Fome',
     description: 'Frango empanado super crocante, cheddar cremoso, alface e pão brioche.',
     price: 0,
-    image: brigadaDaFome,
+    imageKey: 'brigada-da-fome',
     imagePosition: '50% 62%',
     available: false,
   },
@@ -31,7 +23,7 @@ export const products: Product[] = [
     name: 'Combate Duplo',
     description: 'Dois blends artesanais, queijo coalho na chapa, maionese da casa, alface e pão brioche.',
     price: 0,
-    image: combateDuplo,
+    imageKey: 'combate-duplo',
     imagePosition: '50% 62%',
     badge: 'Duplo',
     available: false,
@@ -43,7 +35,7 @@ export const products: Product[] = [
     name: 'SOS Bravo',
     description: 'Blend artesanal, queijo derretido, ovo, alface, tomate e maionese verde no pão brioche.',
     price: 0,
-    image: sosBravo,
+    imageKey: 'sos-bravo',
     imagePosition: '50% 66%',
     available: false,
   },
@@ -61,7 +53,7 @@ export const products: Product[] = [
     name: 'Batata, Bacon e Cheddar',
     description: 'Batata frita coberta com cheddar cremoso e bacon crocante.',
     price: 0,
-    image: batataBaconCheddar,
+    imageKey: 'batata-bacon-cheddar',
     imagePosition: '50% 70%',
     available: false,
   },
@@ -71,7 +63,7 @@ export const products: Product[] = [
     name: 'Operação Crocante',
     description: 'Carne em tiras acebolada com pimentão, batata frita e mandioca frita.',
     price: 0,
-    image: operacaoCrocante,
+    imageKey: 'operacao-crocante',
     imagePosition: '50% 75%',
     available: false,
   },
@@ -81,7 +73,7 @@ export const products: Product[] = [
     name: 'Resgate Rápido',
     description: 'Frango empanado, polenta frita e batata frita, com limão e molhos.',
     price: 0,
-    image: resgateRapido,
+    imageKey: 'resgate-rapido',
     imagePosition: '50% 60%',
     available: false,
   },
@@ -91,7 +83,7 @@ export const products: Product[] = [
     name: 'Resgate em Equipe',
     description: 'Tiras de frango empanadas, polenta frita e batata frita.',
     price: 0,
-    image: resgateEmEquipe,
+    imageKey: 'resgate-em-equipe',
     imagePosition: '50% 60%',
     available: false,
   },
@@ -101,7 +93,7 @@ export const products: Product[] = [
     name: 'Resgate do Pescador',
     description: 'Peixe e camarão empanados, polenta frita e batata frita, com limão e molho tártaro.',
     price: 0,
-    image: resgateDoPescador,
+    imageKey: 'resgate-do-pescador',
     imagePosition: '50% 70%',
     available: false,
   },
@@ -111,7 +103,7 @@ export const products: Product[] = [
     name: 'Resgate Supremo',
     description: 'Tiras de frango empanadas e batata frita crocante.',
     price: 0,
-    image: resgateSupremo,
+    imageKey: 'resgate-supremo',
     imagePosition: '50% 72%',
     available: false,
   },

@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { AppLayout } from './components/layout/AppLayout';
 import { HomePage } from './pages/Home/HomePage';
@@ -14,10 +14,21 @@ const OrderConfirmationPage = lazy(() =>
   })),
 );
 
+// Painel da loja: carrega o SDK do Supabase só para quem acessa /admin.
+const AdminPage = lazy(() => import('./pages/Admin/AdminPage').then((module) => ({ default: module.AdminPage })));
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path={ROUTES.admin}
+          element={
+            <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+              <AdminPage />
+            </Suspense>
+          }
+        />
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
           <Route path={ROUTES.checkout} element={<CheckoutPage />} />

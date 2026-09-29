@@ -1,5 +1,6 @@
 import { storeConfig } from '../../../data/storeConfig';
 import { checkoutFieldId } from '../../../hooks/useCheckout';
+import { useStoreSettings } from '../../../hooks/useStoreSettings';
 import type { CheckoutSectionProps, OrderType } from '../../../types/order';
 import { cn } from '../../../utils/cn';
 import { formatCurrency } from '../../../utils/currency';
@@ -7,22 +8,12 @@ import { TextField } from '../../ui/Input/TextField';
 import { RadioCard } from '../../ui/RadioCard/RadioCard';
 import { FIELD_GRID, FormSection } from '../CheckoutForm/FormSection';
 
-const deliveryPrice = storeConfig.deliveryFee ? formatCurrency(storeConfig.deliveryFee) : 'grátis';
-
-const ORDER_TYPE_OPTIONS: { value: OrderType; title: string; description: string; enabled: boolean }[] = [
-  {
-    value: 'delivery',
-    title: 'Entrega',
-    description: `${storeConfig.deliveryEta} · ${deliveryPrice}`,
-    enabled: storeConfig.deliveryEnabled,
-  },
-  {
-    value: 'pickup',
-    title: 'Retirada',
-    description: `${storeConfig.pickupEta} · grátis`,
-    enabled: storeConfig.pickupEnabled,
-  },
-];
+interface OrderTypeOption {
+  value: OrderType;
+  title: string;
+  description: string;
+  enabled: boolean;
+}
 
 type AddressField = 'street' | 'number' | 'district' | 'complement' | 'reference';
 
@@ -42,10 +33,22 @@ const ADDRESS_FIELDS: {
 ];
 
 export function DeliveryForm({ form, errors, setField }: CheckoutSectionProps) {
+  const { deliveryEnabled, pickupEnabled, deliveryFee, deliveryEta, pickupEta } = useStoreSettings();
+
+  const orderTypeOptions: OrderTypeOption[] = [
+    {
+      value: 'delivery',
+      title: 'Entrega',
+      description: `${deliveryEta} · ${deliveryFee ? formatCurrency(deliveryFee) : 'grátis'}`,
+      enabled: deliveryEnabled,
+    },
+    { value: 'pickup', title: 'Retirada', description: `${pickupEta} · grátis`, enabled: pickupEnabled },
+  ];
+
   return (
     <FormSection title="2 · Como quer receber?">
       <div role="radiogroup" aria-label="Tipo do pedido" className="grid grid-cols-2 gap-2.5">
-        {ORDER_TYPE_OPTIONS.filter((option) => option.enabled).map((option) => (
+        {orderTypeOptions.filter((option) => option.enabled).map((option) => (
           <RadioCard
             key={option.value}
             name="orderType"
@@ -80,7 +83,7 @@ export function DeliveryForm({ form, errors, setField }: CheckoutSectionProps) {
         <div className="mt-4 rounded-control bg-surface-alt p-4 text-[15px] leading-normal">
           <b>Retire em:</b> {storeConfig.address} — {storeConfig.district}, {storeConfig.city}/{storeConfig.state}.
           <br />
-          <span className="text-muted">Avisamos no WhatsApp quando estiver pronto ({storeConfig.pickupEta}).</span>
+          <span className="text-muted">Avisamos no WhatsApp quando estiver pronto ({pickupEta}).</span>
         </div>
       )}
     </FormSection>

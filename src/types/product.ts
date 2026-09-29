@@ -16,7 +16,9 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  /** URL da imagem. Sem imagem, a interface mostra o espaço reservado do mockup. */
+  /** Chave da foto em `data/productImages.ts`. */
+  imageKey?: string;
+  /** URL da imagem, resolvida a partir de `imageKey`. Sem imagem, a interface mostra o espaço reservado. */
   image?: string;
   /** `object-position` usado para enquadrar a foto nos cards. */
   imagePosition?: string;

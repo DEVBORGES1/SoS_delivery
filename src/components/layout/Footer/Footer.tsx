@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { navItems } from '../../../data/homeContent';
 import { storeConfig } from '../../../data/storeConfig';
+import { useStoreSettings } from '../../../hooks/useStoreSettings';
 import { getDirectChatUrl } from '../../../services/whatsappService';
 import { cn } from '../../../utils/cn';
 import { formatHoursShort, isClosedAllDay } from '../../../utils/storeHours';
@@ -8,14 +10,17 @@ import { SectionLink } from '../SectionLink';
 
 const COLUMN_TITLE = 'mb-3 text-xs font-extrabold tracking-[.18em] text-footer-muted';
 
-/** Dias abertos primeiro; dias fechados no fim, esmaecidos. */
-const footerHours = [...storeConfig.openingHours].sort(
-  (a, b) => Number(isClosedAllDay(a)) - Number(isClosedAllDay(b)),
-);
-
 const CURRENT_YEAR = new Date().getFullYear();
 
 export function Footer() {
+  const { openingHours } = useStoreSettings();
+
+  /** Dias abertos primeiro; dias fechados no fim, esmaecidos. */
+  const footerHours = useMemo(
+    () => [...openingHours].sort((a, b) => Number(isClosedAllDay(a)) - Number(isClosedAllDay(b))),
+    [openingHours],
+  );
+
   return (
     <footer className="bg-footer px-gutter pt-[clamp(48px,7vw,80px)] pb-7 text-footer-ink">
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-8">

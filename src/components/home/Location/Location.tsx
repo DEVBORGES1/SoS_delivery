@@ -1,4 +1,5 @@
 import { storeConfig } from '../../../data/storeConfig';
+import { useStoreSettings } from '../../../hooks/useStoreSettings';
 import { useStoreStatus } from '../../../hooks/useStoreStatus';
 import { cn } from '../../../utils/cn';
 import { formatHoursRange, isClosedAllDay } from '../../../utils/storeHours';
@@ -10,6 +11,7 @@ const CARD = 'rounded-sheet border border-line bg-surface';
 
 function OpeningHoursCard() {
   const { isOpen, today, labels } = useStoreStatus();
+  const { openingHours } = useStoreSettings();
 
   return (
     <div className={cn(CARD, 'p-[clamp(24px,3.5vw,40px)]')}>
@@ -24,7 +26,7 @@ function OpeningHoursCard() {
         {labels.long}
       </div>
       <ul className="mt-6 flex flex-col gap-1">
-        {storeConfig.openingHours.map((hours) => {
+        {openingHours.map((hours) => {
           const isToday = hours.days.includes(today);
           return (
             <li
