@@ -1,5 +1,5 @@
-import chamadoEstudio from '../../../assets/images/chamado-sos-estudio.webp';
-import resgateRapido from '../../../assets/images/resgate-rapido.webp';
+import brigadaDaFome from '../../../assets/images/brigada-da-fome.webp';
+import resgateSupremo from '../../../assets/images/resgate-supremo.webp';
 import { aboutStats } from '../../../data/homeContent';
 import { ImagePlaceholder } from '../../ui/ImagePlaceholder/ImagePlaceholder';
 
@@ -17,8 +17,8 @@ export function About() {
           </div>
           <div className="aspect-square overflow-hidden rounded-card">
             <img
-              src={chamadoEstudio}
-              alt="Chamado SOS no estúdio"
+              src={brigadaDaFome}
+              alt="Brigada da Fome com batata frita"
               loading="lazy"
               decoding="async"
               className="size-full object-cover"
@@ -26,8 +26,8 @@ export function About() {
           </div>
           <div className="aspect-square overflow-hidden rounded-card">
             <img
-              src={resgateRapido}
-              alt="Porção Resgate Rápido"
+              src={resgateSupremo}
+              alt="Porção Resgate Supremo"
               loading="lazy"
               decoding="async"
               className="size-full object-cover"

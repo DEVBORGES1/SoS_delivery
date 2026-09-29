@@ -50,7 +50,7 @@ export function MenuSection({ products, categories }: MenuSectionProps) {
             </h2>
           </div>
           <p className="max-w-[340px] text-[15px] text-pretty text-muted">
-            Tudo feito na hora. Toque no lanche pra turbinar com adicionais.
+            Tudo feito na hora. Toque no item pra ver os detalhes e deixar uma observação.
           </p>
         </div>
 

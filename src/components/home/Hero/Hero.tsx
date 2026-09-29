@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import heroImage from '../../../assets/images/combate-duplo.webp';
+import heroImage from '../../../assets/images/combate-duplo-hero.webp';
 import { useStoreStatus } from '../../../hooks/useStoreStatus';
 import { useUIStore } from '../../../stores/uiStore';
 import type { Product } from '../../../types/product';

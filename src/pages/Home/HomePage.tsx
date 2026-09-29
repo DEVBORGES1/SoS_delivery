@@ -12,7 +12,7 @@ export function HomePage() {
   const { products, categories } = useCatalog();
   useScrollToHash();
 
-  const featuredProduct = products.find((product) => product.featured);
+  const featuredProduct = products.find((product) => product.featured && product.available);
 
   return (
     <>

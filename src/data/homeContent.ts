@@ -1,7 +1,9 @@
-import chamadoSos from '../assets/images/chamado-sos.webp';
+import batataBaconCheddar from '../assets/images/batata-bacon-cheddar.webp';
+import brigadaDaFome from '../assets/images/brigada-da-fome.webp';
 import combateDuplo from '../assets/images/combate-duplo.webp';
-import combateDuploTabua from '../assets/images/combate-duplo-tabua.webp';
-import resgateRapido from '../assets/images/resgate-rapido.webp';
+import operacaoCrocante from '../assets/images/operacao-crocante.webp';
+import resgateDoPescador from '../assets/images/resgate-do-pescador.webp';
+import sosBravo from '../assets/images/sos-bravo.webp';
 
 interface NavItem {
   label: string;
@@ -16,17 +18,17 @@ export const navItems: NavItem[] = [
 ];
 
 export const aboutStats = [
-  { value: '+5 anos', label: 'de história' },
+  { value: '5', label: 'meses de história' },
   { value: '100%', label: 'artesanal' },
-  { value: '+10 mil', label: 'pedidos entregues' },
+  { value: '60', label: 'pedidos por dia, em média' },
 ];
 
 /** Grade do Instagram. Itens sem `image` exibem o espaço reservado do mockup. */
 export const instagramPosts: { alt: string; image?: string }[] = [
-  { alt: 'Chamado SOS', image: chamadoSos },
-  { alt: 'foto · salão / fachada' },
-  { alt: 'Resgate Rápido', image: resgateRapido },
-  { alt: 'Combate Duplo', image: combateDuploTabua },
-  { alt: 'foto · chapa em ação' },
-  { alt: 'Combate Duplo de perto', image: combateDuplo },
+  { alt: 'Combate Duplo', image: combateDuplo },
+  { alt: 'Batata, Bacon e Cheddar', image: batataBaconCheddar },
+  { alt: 'SOS Bravo', image: sosBravo },
+  { alt: 'Resgate do Pescador', image: resgateDoPescador },
+  { alt: 'Brigada da Fome', image: brigadaDaFome },
+  { alt: 'Operação Crocante', image: operacaoCrocante },
 ];

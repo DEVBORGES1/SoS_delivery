@@ -15,7 +15,7 @@ function formatLine(line: OrderLine): string[] {
 function formatTotals(order: Order): string[] {
   const rows = [`Subtotal: ${formatCurrency(order.subtotal)}`];
   if (order.customer.orderType === 'delivery') {
-    rows.push(`Taxa de entrega: ${formatCurrency(order.deliveryFee)}`);
+    rows.push(`Taxa de entrega: ${order.deliveryFee ? formatCurrency(order.deliveryFee) : 'Grátis'}`);
   }
   rows.push(`*Total: ${formatCurrency(order.total)}*`);
   return rows;
