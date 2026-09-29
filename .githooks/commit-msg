@@ -1,0 +1,3 @@
+#!/bin/sh
+# Remove linhas de coautoria/atribuição da mensagem de commit.
+sed -i -E '/^(Co-Authored-By|Claude-Session):/Id' "$1"
