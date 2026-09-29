@@ -94,4 +94,4 @@ O site dos clientes lê o Supabase por `fetch` simples (`services/productService
 
 ## Deploy
 
-É uma SPA: configure o servidor para responder `index.html` em qualquer rota (senão `/checkout` e `/admin` dão 404 ao recarregar). Ajuste também `og:image` no `index.html` para a URL absoluta do domínio.
+É uma SPA: configure o servidor para responder `index.html` em qualquer rota (senão `/checkout` e `/admin` dão 404 ao recarregar). O site está publicado na Vercel (`vercel.json` já cuida das rotas) em https://so-s-delivery.vercel.app. Ao trocar de domínio, atualize `og:url`, `og:image` e `canonical` no `index.html`.
