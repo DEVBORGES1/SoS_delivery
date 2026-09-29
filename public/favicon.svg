@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="4" y="14" width="56" height="36" rx="7" fill="#d3301f" transform="rotate(-6 32 32)"/>
+  <text x="32" y="41" fill="#fff" font-family="Anton, Impact, 'Arial Narrow', sans-serif" font-size="24" font-weight="700" text-anchor="middle" transform="rotate(-6 32 32)">SOS</text>
+</svg>

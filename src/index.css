@@ -1,0 +1,171 @@
+@import 'tailwindcss';
+
+/* ── Fontes (self-hosted, subset latin) ───────────────────────────── */
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/anton-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('./assets/fonts/archivo-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/jetbrains-mono-latin.woff2') format('woff2');
+}
+
+/* ── Design tokens (direção visual "Sirene" do mockup) ────────────── */
+@theme {
+  --font-display: 'Anton', 'Impact', sans-serif;
+  --font-sans: 'Archivo', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-bg: #f5eee2;
+  --color-bg-alt: #ece3d4;
+  --color-surface: #fffaf2;
+  --color-surface-alt: #f1e8da;
+  --color-field: #ffffff;
+  --color-ink: #1c1611;
+  --color-muted: #66584a;
+  --color-line: rgb(28 22 17 / 0.13);
+  --color-header: rgb(245 238 226 / 0.88);
+  --color-overlay: rgb(28 22 17 / 0.5);
+  --color-placeholder: #e6dccb;
+  --color-placeholder-line: rgb(28 22 17 / 0.05);
+
+  --color-accent: #d3301f;
+  --color-accent-ink: #ffffff;
+  --color-accent-deep: #8f1c11;
+  --color-mustard: #f2b53a;
+  --color-mustard-ink: #1a1109;
+
+  --color-whatsapp: #178a45;
+  --color-disabled: #5b5047;
+  --color-danger: #b3261e;
+  --color-danger-line: #ff6b5b;
+  --color-status-open: #34c759;
+  --color-status-closed: #ff5a4a;
+  --color-success-ink: #15733a;
+
+  --color-footer: #0d0a08;
+  --color-footer-ink: #e9dfd0;
+  --color-footer-soft: #cbbfae;
+  --color-footer-muted: #a89986;
+  --color-footer-dim: #8a7c6c;
+
+  --radius-field: 12px;
+  --radius-control: 14px;
+  --radius-cta: 16px;
+  --radius-card: 22px;
+  --radius-sheet: 24px;
+
+  --shadow-card-hover: 0 24px 48px -20px rgb(0 0 0 / 0.55);
+  --shadow-float: 0 18px 40px -16px rgb(0 0 0 / 0.5);
+  --shadow-sticker: 0 12px 24px -10px rgb(0 0 0 / 0.5);
+  --shadow-thumb: 0 6px 14px -4px rgb(0 0 0 / 0.45);
+  --shadow-cta-3d: 0 6px 0 var(--color-accent-deep);
+  --shadow-cta-3d-hover: 0 8px 0 var(--color-accent-deep);
+  --shadow-cta-3d-active: 0 2px 0 var(--color-accent-deep);
+  --shadow-whatsapp: 0 12px 28px -12px rgb(23 138 69 / 0.7);
+  --shadow-fab: 0 12px 28px -8px rgb(0 0 0 / 0.5);
+  --shadow-bar: 0 14px 32px -10px rgb(0 0 0 / 0.6);
+  --shadow-toast: 0 16px 40px -12px rgb(0 0 0 / 0.6);
+  --shadow-dialog: 0 30px 80px -20px rgb(0 0 0 / 0.6);
+  --shadow-drawer: -20px 0 60px -20px rgb(0 0 0 / 0.5);
+  --shadow-focus: 0 0 0 4px rgb(244 169 56 / 0.18);
+
+  --ease-spring: cubic-bezier(0.3, 1.6, 0.5, 1);
+  --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-status-pulse: status-pulse 1.6s ease-out infinite;
+  --animate-price-pop: price-pop 0.45s var(--ease-spring);
+
+  @keyframes status-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgb(52 199 89 / 0.55);
+    }
+    100% {
+      box-shadow: 0 0 0 9px rgb(52 199 89 / 0);
+    }
+  }
+
+  @keyframes price-pop {
+    40% {
+      transform: scale(1.12);
+    }
+  }
+}
+
+/* Faixas diagonais usadas nos espaços reservados para fotos. */
+@utility bg-stripes {
+  background-color: var(--color-placeholder);
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--color-placeholder-line) 0 12px,
+    transparent 12px 24px
+  );
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Espaçamento lateral padrão das seções: clamp(16px, 4vw, 40px). */
+@utility px-gutter {
+  padding-inline: clamp(16px, 4vw, 40px);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--color-bg);
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-mustard);
+    outline-offset: 2px;
+  }
+
+  ::placeholder {
+    color: #8d7f70;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
