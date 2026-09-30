@@ -5,13 +5,13 @@ import { onlyDigits } from '../../utils/formatters';
 import { PAYMENT_METHOD_LABELS } from '../../utils/order';
 
 export const ORDER_STATUS: Record<OrderStatus, { label: string; color: string }> = {
-  novo: { label: 'Novo', color: '#d3301f' },
-  aceito: { label: 'Aceito', color: '#8a5a00' },
-  preparando: { label: 'Preparando', color: '#b54f00' },
-  saiu: { label: 'Saiu pra entrega', color: '#1f5fbf' },
-  pronto: { label: 'Pronto pra retirada', color: '#1f5fbf' },
-  concluido: { label: 'Concluído', color: '#178a45' },
-  cancelado: { label: 'Cancelado', color: '#6a5c4d' },
+  novo: { label: 'Novo', color: 'var(--adm-st-novo)' },
+  aceito: { label: 'Aceito', color: 'var(--adm-st-aceito)' },
+  preparando: { label: 'Preparando', color: 'var(--adm-st-preparando)' },
+  saiu: { label: 'Saiu pra entrega', color: 'var(--adm-st-saiu)' },
+  pronto: { label: 'Pronto pra retirada', color: 'var(--adm-st-saiu)' },
+  concluido: { label: 'Concluído', color: 'var(--adm-st-concluido)' },
+  cancelado: { label: 'Cancelado', color: 'var(--adm-st-cancelado)' },
 };
 
 export const ACTIVE_STATUSES: OrderStatus[] = ['novo', 'aceito', 'preparando', 'saiu', 'pronto'];
@@ -80,8 +80,7 @@ export function customerMessage(order: AdminOrder, status: OrderStatus, delivery
   return messages[status];
 }
 
-/** Cor com transparência, para os fundos das etiquetas de status. */
-export function withAlpha(hex: string, alpha: number): string {
-  const value = parseInt(hex.slice(1), 16);
-  return `rgba(${value >> 16}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+/** Cor com transparência, para os fundos das etiquetas de status (aceita variáveis CSS). */
+export function withAlpha(color: string, alpha: number): string {
+  return `color-mix(in srgb, ${color} ${Math.round(alpha * 100)}%, transparent)`;
 }

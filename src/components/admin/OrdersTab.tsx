@@ -78,17 +78,17 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
     <section
       aria-label="Detalhes do pedido"
       className={cn(
-        'flex flex-col overflow-auto border border-[#e4dccf] bg-white',
+        'flex flex-col overflow-auto border border-(--adm-line) bg-(--adm-card)',
         narrow ? 'fixed inset-0 z-61 rounded-none' : 'sticky top-24 max-h-[calc(100vh-120px)] rounded-[18px]',
       )}
     >
-      <div className="sticky top-0 z-2 flex items-center gap-3 border-b border-[#efe8dd] bg-white px-[18px] py-3.5">
+      <div className="sticky top-0 z-2 flex items-center gap-3 border-b border-(--adm-divider) bg-(--adm-card) px-[18px] py-3.5">
         {narrow && (
           <button
             type="button"
             onClick={onClose}
             aria-label="Voltar para a lista"
-            className="grid size-11 flex-none cursor-pointer place-items-center rounded-full bg-[#f4efe7] text-[#1c1611]"
+            className="grid size-11 flex-none cursor-pointer place-items-center rounded-full bg-(--adm-soft) text-(--adm-ink)"
           >
             <ArrowLeft size={18} aria-hidden="true" />
           </button>
@@ -112,14 +112,14 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
                 <span
                   className="h-1.5 rounded-[9px]"
                   style={{
-                    background: !reached ? '#e4dccf' : current ? ORDER_STATUS[step].color : '#1c1611',
+                    background: !reached ? 'var(--adm-line)' : current ? ORDER_STATUS[step].color : 'var(--adm-ink)',
                   }}
                 />
                 <span
                   className={cn(
                     'text-[11.5px] leading-[1.25]',
                     current ? 'font-extrabold' : 'font-semibold',
-                    reached ? 'text-[#1c1611]' : 'text-[#9c8f80]',
+                    reached ? 'text-(--adm-ink)' : 'text-(--adm-subtle)',
                   )}
                 >
                   {STEP_LABELS[step]}
@@ -130,9 +130,9 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
         </ol>
 
         {next ? (
-          <div className="flex flex-col gap-3 rounded-2xl bg-[#f4efe7] p-4">
+          <div className="flex flex-col gap-3 rounded-2xl bg-(--adm-soft) p-4">
             <div className={EYEBROW}>MENSAGEM PARA O CLIENTE</div>
-            <div className="max-w-full self-start rounded-[4px_14px_14px_14px] bg-[#dcf5e3] px-3.5 py-2.5 text-[14.5px] leading-[1.45] whitespace-pre-wrap text-[#10331d] shadow-[0_1px_1px_rgba(0,0,0,.08)]">
+            <div className="max-w-full self-start rounded-[4px_14px_14px_14px] bg-(--adm-bubble) px-3.5 py-2.5 text-[14.5px] leading-[1.45] whitespace-pre-wrap text-(--adm-bubble-ink) shadow-[0_1px_1px_rgba(0,0,0,.08)]">
               {message}
             </div>
             <a
@@ -167,8 +167,8 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
                   void onStatus(order, 'cancelado', `Pedido #${order.id} cancelado · WhatsApp aberto`);
                 }}
                 className={cn(
-                  'flex h-10 items-center rounded-[10px] border-[1.5px] border-[#d3301f] px-3.5 text-[13px] font-extrabold',
-                  confirmCancel ? 'bg-[#d3301f] text-white' : 'bg-white text-[#d3301f]',
+                  'flex h-10 items-center rounded-[10px] border-[1.5px] border-(--adm-accent) px-3.5 text-[13px] font-extrabold',
+                  confirmCancel ? 'bg-(--adm-accent) text-white' : 'bg-(--adm-card) text-(--adm-accent)',
                 )}
               >
                 {confirmCancel
@@ -180,7 +180,7 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
             </div>
           </div>
         ) : (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-[#f4efe7] px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-(--adm-soft) px-4 py-3">
             <span className="text-sm font-bold">
               {cancelled ? 'Pedido cancelado — o cliente foi avisado.' : 'Pedido concluído. Tudo certo!'}
             </span>
@@ -200,14 +200,14 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
             <div className={EYEBROW}>CLIENTE</div>
             <div className="mt-1 text-base font-extrabold">{order.customerName}</div>
             <div className="mt-0.5 flex gap-3 text-sm font-bold">
-              <a href={`tel:${onlyDigits(order.customerPhone)}`} className="text-[#d3301f]">
+              <a href={`tel:${onlyDigits(order.customerPhone)}`} className="text-(--adm-accent)">
                 {order.customerPhone}
               </a>
               <a
                 href={customerWhatsAppUrl(order.customerPhone, `Olá, ${firstName}! Sobre seu pedido #${order.id}:`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#178a45]"
+                className="text-(--adm-green-text)"
               >
                 Conversar
               </a>
@@ -230,19 +230,19 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-[14px] border border-[#efe8dd]">
+        <div className="overflow-hidden rounded-[14px] border border-(--adm-divider)">
           {order.items.map((item, index) => (
-            <div key={index} className="flex gap-3 border-b border-[#efe8dd] px-3.5 py-3 text-[14.5px]">
+            <div key={index} className="flex gap-3 border-b border-(--adm-divider) px-3.5 py-3 text-[14.5px]">
               <span className="min-w-[26px] font-extrabold">{item.quantity}×</span>
               <div className="min-w-0 flex-1">
                 <div className="font-bold">{item.name}</div>
                 {item.addons?.length > 0 && <div className={cn('text-[13px]', MUTED)}>+ {item.addons.join(', ')}</div>}
-                {item.note && <div className="text-[13px] font-semibold text-[#b3261e]">Obs: {item.note}</div>}
+                {item.note && <div className="text-[13px] font-semibold text-(--adm-danger)">Obs: {item.note}</div>}
               </div>
               <span className="font-bold whitespace-nowrap">{formatCurrency(item.lineTotal)}</span>
             </div>
           ))}
-          <div className="flex flex-col gap-1 bg-[#faf7f2] px-3.5 py-3 text-sm">
+          <div className="flex flex-col gap-1 bg-(--adm-faint) px-3.5 py-3 text-sm">
             <div className={cn('flex justify-between', MUTED)}>
               <span>Subtotal</span>
               <span>{formatCurrency(order.subtotal)}</span>
@@ -261,7 +261,7 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
         </div>
 
         {order.notes && (
-          <div className="rounded-xl border border-[#f2d68a] bg-[#fff6dc] px-3.5 py-3 text-sm">
+          <div className="rounded-xl border border-(--adm-note-line) bg-(--adm-note-bg) px-3.5 py-3 text-sm">
             <b>Observação do cliente:</b> {order.notes}
           </div>
         )}
@@ -269,11 +269,11 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
         <div>
           <div className={cn(EYEBROW, 'mb-2')}>HISTÓRICO</div>
           {[...order.history].reverse().map((entry, index) => (
-            <div key={index} className="flex justify-between gap-2.5 border-t border-[#efe8dd] py-2 text-sm">
+            <div key={index} className="flex justify-between gap-2.5 border-t border-(--adm-divider) py-2 text-sm">
               <span className="flex items-center gap-2">
                 <span
                   className="size-2 rounded-full"
-                  style={{ background: ORDER_STATUS[entry.s]?.color ?? '#6a5c4d' }}
+                  style={{ background: ORDER_STATUS[entry.s]?.color ?? 'var(--adm-muted)' }}
                 />
                 {entry.s === 'novo' ? 'Pedido recebido' : (ORDER_STATUS[entry.s]?.label ?? entry.s)}
               </span>
@@ -337,7 +337,7 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
         options={FILTERS.map(({ id, label, match: test }) => ({ id, label, count: orders.filter(test).length }))}
       />
       {clearable && list.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e4dccf] bg-white px-[18px] py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-(--adm-line) bg-(--adm-card) px-[18px] py-3.5">
           <div>
             <div className="text-[15px] font-extrabold">
               {list.length} {list.length === 1 ? 'pedido' : 'pedidos'}
@@ -365,15 +365,15 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
                 type="button"
                 onClick={() => setSelectedId(order.id)}
                 className={cn(
-                  'flex w-full cursor-pointer flex-col gap-1.5 rounded-2xl border-2 bg-white px-[18px] py-4 text-left text-[#1c1611] transition-colors duration-200 hover:border-[#1c1611]',
-                  isSelected ? 'border-[#1c1611]' : order.status === 'novo' ? 'border-[#f0b3ab]' : 'border-[#e4dccf]',
+                  'flex w-full cursor-pointer flex-col gap-1.5 rounded-2xl border-2 bg-(--adm-card) px-[18px] py-4 text-left text-(--adm-ink) transition-colors duration-200 hover:border-(--adm-ink)',
+                  isSelected ? 'border-(--adm-ink)' : order.status === 'novo' ? 'border-(--adm-new-border)' : 'border-(--adm-line)',
                 )}
               >
                 <div className="flex items-center justify-between gap-2.5">
                   <span className="flex items-center gap-2">
                     <span className="text-[17px] font-extrabold">#{order.id}</span>
                     {order.status === 'novo' && (
-                      <span className="rounded-[5px] bg-[#d3301f] px-[7px] py-0.5 text-[11px] font-extrabold tracking-[.04em] text-white">
+                      <span className="rounded-[5px] bg-(--adm-accent) px-[7px] py-0.5 text-[11px] font-extrabold tracking-[.04em] text-white">
                         NOVO
                       </span>
                     )}
@@ -394,7 +394,7 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
             );
           })}
           {list.length === 0 && (
-            <div className={cn('rounded-2xl border-[1.5px] border-dashed border-[#d8cdbd] bg-white px-5 py-10 text-center', MUTED)}>
+            <div className={cn('rounded-2xl border-[1.5px] border-dashed border-(--adm-dashed) bg-(--adm-card) px-5 py-10 text-center', MUTED)}>
               Nenhum pedido aqui. Novos pedidos do site aparecem sozinhos.
             </div>
           )}

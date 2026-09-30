@@ -11,11 +11,11 @@
     <meta name="theme-color" content="#f5eee2" />
     <script>
       // Aplica o tema antes da primeira pintura (evita piscar o claro no escuro).
-      // Escolha salva > tema do sistema. O painel /admin fica sempre claro.
+      // Escolha salva > tema do sistema (vale para o site e para o painel /admin).
       try {
         var saved = localStorage.getItem('theme');
         var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-        if (dark && location.pathname.indexOf('/admin') !== 0) {
+        if (dark) {
           document.documentElement.dataset.theme = 'dark';
           document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0c0a09');
         }

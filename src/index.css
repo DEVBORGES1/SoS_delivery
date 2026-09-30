@@ -157,6 +157,84 @@
   color: #7d736a;
 }
 
+/* ── Cores do painel /admin (seguem o mesmo tema do site) ─────────────
+   A barra lateral e a barra inferior ("chrome") são escuras nos dois temas. */
+:root {
+  --adm-page: #f4efe7;
+  --adm-card: #ffffff;
+  --adm-soft: #f4efe7;
+  --adm-faint: #faf7f2;
+  --adm-ink: #1c1611;
+  --adm-ink-inverse: #ffffff;
+  --adm-muted: #6a5c4d;
+  --adm-subtle: #9c8f80;
+  --adm-line: #e4dccf;
+  --adm-divider: #efe8dd;
+  --adm-dashed: #d8cdbd;
+  --adm-accent: #d3301f;
+  --adm-danger: #b3261e;
+  --adm-green-text: #178a45;
+  --adm-thumb: #eee6da;
+  --adm-stripe: rgb(28 22 17 / 0.05);
+  --adm-note-bg: #fff6dc;
+  --adm-note-line: #f2d68a;
+  --adm-banner-off: #eadfcb;
+  --adm-bubble: #dcf5e3;
+  --adm-bubble-ink: #10331d;
+  --adm-switch-off: #cfc4b4;
+  --adm-seg-on: #ffffff;
+  --adm-new-border: #f0b3ab;
+  --adm-header: rgb(244 239 231 / 0.92);
+  --adm-overlay: rgb(28 22 17 / 0.45);
+  --adm-chrome: #1c1611;
+  --adm-chrome-line: transparent;
+
+  --adm-st-novo: #d3301f;
+  --adm-st-aceito: #8a5a00;
+  --adm-st-preparando: #b54f00;
+  --adm-st-saiu: #1f5fbf;
+  --adm-st-concluido: #178a45;
+  --adm-st-cancelado: #6a5c4d;
+}
+
+:root[data-theme='dark'] {
+  --adm-page: #0c0a09;
+  --adm-card: #17130f;
+  --adm-soft: #211b16;
+  --adm-faint: #1d1814;
+  --adm-ink: #f5efe6;
+  --adm-ink-inverse: #0c0a09;
+  --adm-muted: #a8a09a;
+  --adm-subtle: #7d736a;
+  --adm-line: rgb(255 255 255 / 0.1);
+  --adm-divider: rgb(255 255 255 / 0.07);
+  --adm-dashed: rgb(255 255 255 / 0.18);
+  --adm-accent: #e0301f;
+  --adm-danger: #f87171;
+  --adm-green-text: #4ade80;
+  --adm-thumb: #1c1713;
+  --adm-stripe: rgb(255 255 255 / 0.035);
+  --adm-note-bg: rgb(242 181 58 / 0.1);
+  --adm-note-line: rgb(242 181 58 / 0.35);
+  --adm-banner-off: #2a231d;
+  --adm-bubble: #103b26;
+  --adm-bubble-ink: #dcf5e3;
+  --adm-switch-off: #4a423b;
+  --adm-seg-on: #3a312a;
+  --adm-new-border: rgb(224 48 31 / 0.55);
+  --adm-header: rgb(12 10 9 / 0.85);
+  --adm-overlay: rgb(0 0 0 / 0.62);
+  --adm-chrome: #080605;
+  --adm-chrome-line: rgb(255 255 255 / 0.08);
+
+  --adm-st-novo: #f87171;
+  --adm-st-aceito: #fbbf24;
+  --adm-st-preparando: #fb923c;
+  --adm-st-saiu: #60a5fa;
+  --adm-st-concluido: #4ade80;
+  --adm-st-cancelado: #a8a09a;
+}
+
 /* ── Animação da troca de tema ────────────────────────────────────────
    O tema novo surge num círculo que cresce a partir do botão clicado
    (--reveal-x/--reveal-y), igual ao portfólio. Usa a View Transitions API;

@@ -33,7 +33,7 @@ function ProductRow({ product, promotion, saving, onPrice, onAvailable, onEdit }
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-[#efe8dd] px-[clamp(14px,2vw,20px)] py-3.5 last:border-b-0',
+        'flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-(--adm-divider) px-[clamp(14px,2vw,20px)] py-3.5 last:border-b-0',
         !product.available && 'opacity-60',
       )}
     >
@@ -48,7 +48,7 @@ function ProductRow({ product, promotion, saving, onPrice, onAvailable, onEdit }
               </span>
             )}
             {!product.available && (
-              <span className="rounded-[5px] bg-[#1c1611] px-[7px] py-0.5 text-[11px] font-extrabold text-white">
+              <span className="rounded-[5px] bg-(--adm-ink) px-[7px] py-0.5 text-[11px] font-extrabold text-(--adm-ink-inverse)">
                 ESGOTADO
               </span>
             )}
@@ -56,7 +56,7 @@ function ProductRow({ product, promotion, saving, onPrice, onAvailable, onEdit }
           <div className={cn('text-[13px]', MUTED)}>
             {CATEGORY_LABEL[product.categoryId] ?? product.categoryId}
             {product.badge && ` · selo “${product.badge}”`}
-            {product.price === 0 && <span className="font-bold text-[#b3261e]"> · sem preço</span>}
+            {product.price === 0 && <span className="font-bold text-(--adm-danger)"> · sem preço</span>}
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@ export function MenuTab({ data, onEdit, onNew }: MenuTabProps) {
         </button>
       </div>
       <Chips ariaLabel="Filtrar categoria" value={category} onChange={setCategory} options={chipOptions} />
-      <div className="overflow-hidden rounded-[18px] border border-[#e4dccf] bg-white">
+      <div className="overflow-hidden rounded-[18px] border border-(--adm-line) bg-(--adm-card)">
         {rows.map((product) => (
           <ProductRow
             key={product.id}

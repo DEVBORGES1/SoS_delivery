@@ -4,17 +4,17 @@ import { useDialog } from '../../hooks/useDialog';
 import { cn } from '../../utils/cn';
 
 /* Cores do mockup do painel (tons mais neutros que os do site). */
-export const CARD = 'rounded-[18px] border border-[#e4dccf] bg-white';
+export const CARD = 'rounded-[18px] border border-(--adm-line) bg-(--adm-card)';
 export const CARD_PAD = 'p-[clamp(18px,3vw,28px)]';
-export const MUTED = 'text-[#6a5c4d]';
+export const MUTED = 'text-(--adm-muted)';
 export const LABEL = 'text-sm font-bold';
 export const INPUT =
-  'h-[50px] w-full rounded-[10px] border-[1.5px] border-[#e4dccf] bg-white px-3.5 text-base text-[#1c1611] outline-none placeholder:text-[#9c8f80] focus:border-[#d3301f] focus:shadow-[0_0_0_4px_rgba(211,48,31,.12)]';
+  'h-[50px] w-full rounded-[10px] border-[1.5px] border-(--adm-line) bg-(--adm-card) px-3.5 text-base text-(--adm-ink) outline-none placeholder:text-(--adm-subtle) focus:border-(--adm-accent) focus:shadow-[0_0_0_4px_rgba(211,48,31,.12)]';
 export const BTN_PRIMARY =
-  'inline-flex h-12 flex-none cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#d3301f] px-5 text-sm font-extrabold tracking-[.04em] text-white hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex h-12 flex-none cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-(--adm-accent) px-5 text-sm font-extrabold tracking-[.04em] text-white hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-60';
 export const BTN_OUTLINE =
-  'inline-flex h-11 flex-none cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e4dccf] bg-white px-4 text-sm font-bold text-[#1c1611] hover:border-[#1c1611] disabled:cursor-not-allowed disabled:opacity-50';
-export const EYEBROW = 'text-xs font-extrabold tracking-[.12em] text-[#6a5c4d]';
+  'inline-flex h-11 flex-none cursor-pointer items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-(--adm-line) bg-(--adm-card) px-4 text-sm font-bold text-(--adm-ink) hover:border-(--adm-ink) disabled:cursor-not-allowed disabled:opacity-50';
+export const EYEBROW = 'text-xs font-extrabold tracking-[.12em] text-(--adm-muted)';
 
 interface SwitchProps {
   checked: boolean;
@@ -35,12 +35,12 @@ export function Switch({ checked, onChange, label, disabled }: SwitchProps) {
       onClick={() => onChange(!checked)}
       className={cn(
         'flex h-[30px] w-[50px] flex-none cursor-pointer rounded-full p-[3px] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60',
-        checked ? 'bg-[#178a45]' : 'bg-[#cfc4b4]',
+        checked ? 'bg-[#178a45]' : 'bg-(--adm-switch-off)',
       )}
     >
       <span
         className={cn(
-          'size-6 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,.3)] transition-transform duration-200',
+          'size-6 rounded-full bg-(--adm-card) shadow-[0_1px_3px_rgba(0,0,0,.3)] transition-transform duration-200',
           checked && 'translate-x-5',
         )}
       />
@@ -76,7 +76,7 @@ export function Chips<T extends string>({ options, value, onChange, ariaLabel }:
             onClick={() => onChange(option.id)}
             className={cn(
               'h-10 flex-none cursor-pointer rounded-full border-[1.5px] px-4 text-sm font-bold',
-              on ? 'border-[#1c1611] bg-[#1c1611] text-white' : 'border-[#e4dccf] bg-white text-[#1c1611]',
+              on ? 'border-(--adm-ink) bg-(--adm-ink) text-(--adm-ink-inverse)' : 'border-(--adm-line) bg-(--adm-card) text-(--adm-ink)',
             )}
           >
             {option.label}
@@ -99,7 +99,7 @@ interface SegmentedProps<T extends string> {
 /** Controle segmentado (status da loja, tipo de desconto). */
 export function Segmented<T extends string>({ options, value, onChange, ariaLabel, className }: SegmentedProps<T>) {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={cn('flex gap-1 rounded-xl bg-[#f4efe7] p-1', className)}>
+    <div role="radiogroup" aria-label={ariaLabel} className={cn('flex gap-1 rounded-xl bg-(--adm-soft) p-1', className)}>
       {options.map((option) => {
         const on = option.id === value;
         return (
@@ -110,8 +110,8 @@ export function Segmented<T extends string>({ options, value, onChange, ariaLabe
             aria-checked={on}
             onClick={() => onChange(option.id)}
             className={cn(
-              'h-11 flex-1 cursor-pointer rounded-[9px] px-[18px] text-sm font-bold whitespace-nowrap text-[#1c1611] transition-colors duration-200',
-              on ? 'bg-white shadow-[0_1px_3px_rgba(0,0,0,.12)]' : 'bg-transparent',
+              'h-11 flex-1 cursor-pointer rounded-[9px] px-[18px] text-sm font-bold whitespace-nowrap text-(--adm-ink) transition-colors duration-200',
+              on ? 'bg-(--adm-seg-on) shadow-[0_1px_3px_rgba(0,0,0,.12)]' : 'bg-transparent',
             )}
           >
             {option.label}
@@ -139,7 +139,7 @@ export function Field({ id, label, hint, error, className, children }: FieldProp
       </label>
       {children}
       {error ? (
-        <span className="text-[13px] font-semibold text-[#b3261e]">{error}</span>
+        <span className="text-[13px] font-semibold text-(--adm-danger)">{error}</span>
       ) : (
         hint && <span className={cn('text-[12.5px]', MUTED)}>{hint}</span>
       )}
@@ -159,15 +159,15 @@ export function PrefixedInput({ prefix, suffix, invalid, compact, className, ...
   return (
     <div
       className={cn(
-        'flex items-center rounded-[10px] border-[1.5px] bg-white pl-3.5 focus-within:border-[#d3301f]',
+        'flex items-center rounded-[10px] border-[1.5px] bg-(--adm-card) pl-3.5 focus-within:border-(--adm-accent)',
         compact ? 'h-11 pl-3' : 'h-[50px]',
-        invalid ? 'border-[#b3261e]' : 'border-[#e4dccf]',
+        invalid ? 'border-(--adm-danger)' : 'border-(--adm-line)',
         className,
       )}
     >
       {prefix && <span className={cn('text-sm font-bold', MUTED)}>{prefix}</span>}
       <input
-        className="h-full w-full min-w-0 border-0 bg-transparent pr-3 pl-1.5 text-base font-extrabold text-[#1c1611] tabular-nums outline-none"
+        className="h-full w-full min-w-0 border-0 bg-transparent pr-3 pl-1.5 text-base font-extrabold text-(--adm-ink) tabular-nums outline-none"
         {...props}
       />
       {suffix && <span className={cn('pr-3.5 text-sm font-bold', MUTED)}>{suffix}</span>}
@@ -191,7 +191,7 @@ export function Drawer({ title, onClose, footer, width, children }: DrawerProps)
 
   return (
     <div className="fixed inset-0 z-60">
-      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-[rgba(28,22,17,.45)]" />
+      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-(--adm-overlay)" />
       <div
         ref={panelRef}
         role="dialog"
@@ -199,11 +199,11 @@ export function Drawer({ title, onClose, footer, width, children }: DrawerProps)
         aria-labelledby="drawer-title"
         tabIndex={-1}
         className={cn(
-          'absolute inset-y-0 right-0 flex w-full flex-col bg-white text-[#1c1611] shadow-[-20px_0_60px_-20px_rgba(0,0,0,.35)] outline-none',
+          'absolute inset-y-0 right-0 flex w-full flex-col bg-(--adm-card) text-(--adm-ink) shadow-[-20px_0_60px_-20px_rgba(0,0,0,.35)] outline-none',
           width === 'wide' ? 'min-[960px]:w-[760px]' : 'min-[640px]:w-[520px]',
         )}
       >
-        <div className="flex items-center justify-between border-b border-[#efe8dd] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-(--adm-divider) px-5 py-4">
           <h2 id="drawer-title" className="m-0 font-display text-[26px] font-normal uppercase">
             {title}
           </h2>
@@ -211,13 +211,13 @@ export function Drawer({ title, onClose, footer, width, children }: DrawerProps)
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="grid size-11 cursor-pointer place-items-center rounded-full bg-[#f4efe7] text-[#1c1611]"
+            className="grid size-11 cursor-pointer place-items-center rounded-full bg-(--adm-soft) text-(--adm-ink)"
           >
             <X size={18} aria-hidden="true" />
           </button>
         </div>
         <div className="flex-1 overflow-auto p-5">{children}</div>
-        <div className="flex items-center gap-2.5 border-t border-[#efe8dd] px-5 py-3.5">{footer}</div>
+        <div className="flex items-center gap-2.5 border-t border-(--adm-divider) px-5 py-3.5">{footer}</div>
       </div>
     </div>
   );
@@ -240,8 +240,8 @@ export function ConfirmButton({ label, confirmLabel, confirming, onClick, disabl
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'h-[50px] cursor-pointer rounded-xl border-[1.5px] border-[#d3301f] px-4 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-60',
-        confirming ? 'bg-[#d3301f] text-white' : 'bg-white text-[#d3301f]',
+        'h-[50px] cursor-pointer rounded-xl border-[1.5px] border-(--adm-accent) px-4 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-60',
+        confirming ? 'bg-(--adm-accent) text-white' : 'bg-(--adm-card) text-(--adm-accent)',
         className,
       )}
     >
@@ -255,7 +255,7 @@ export function Thumb({ src, className, dimmed }: { src?: string; className?: st
   return (
     <div
       className={cn(
-        'flex-none overflow-hidden rounded-xl bg-[#eee6da] bg-[repeating-linear-gradient(135deg,rgba(28,22,17,.05)_0_8px,transparent_8px_16px)]',
+        'flex-none overflow-hidden rounded-xl bg-(--adm-thumb) bg-[repeating-linear-gradient(135deg,var(--adm-stripe)_0_8px,transparent_8px_16px)]',
         className,
       )}
     >

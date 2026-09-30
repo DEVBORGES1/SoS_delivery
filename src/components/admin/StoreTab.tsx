@@ -123,7 +123,7 @@ export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () =
         {hours.map((draft) => (
           <div
             key={draft.day}
-            className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-[#efe8dd] py-2.5 text-[15px]"
+            className="flex min-h-[52px] flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-(--adm-divider) py-2.5 text-[15px]"
           >
             <span className="flex items-center gap-3 font-bold">
               <Switch
@@ -157,12 +157,12 @@ export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () =
           </div>
         ))}
         {days && (
-          <div className="mt-3 flex flex-wrap items-center justify-end gap-2.5 border-t border-[#efe8dd] pt-4">
+          <div className="mt-3 flex flex-wrap items-center justify-end gap-2.5 border-t border-(--adm-divider) pt-4">
             <span className={cn('mr-auto text-sm', MUTED)}>Alterações ainda não salvas.</span>
             <button
               type="button"
               onClick={() => setDays(null)}
-              className="h-11 cursor-pointer rounded-[10px] px-3 text-sm font-bold text-[#6a5c4d] hover:text-[#1c1611]"
+              className="h-11 cursor-pointer rounded-[10px] px-3 text-sm font-bold text-(--adm-muted) hover:text-(--adm-ink)"
             >
               Desfazer
             </button>
@@ -209,7 +209,7 @@ export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () =
       <button
         type="button"
         onClick={onSignOut}
-        className="h-12 cursor-pointer rounded-xl border-[1.5px] border-[#e4dccf] bg-white text-sm font-bold text-[#6a5c4d] min-[960px]:hidden"
+        className="h-12 cursor-pointer rounded-xl border-[1.5px] border-(--adm-line) bg-(--adm-card) text-sm font-bold text-(--adm-muted) min-[960px]:hidden"
       >
         Sair do painel
       </button>

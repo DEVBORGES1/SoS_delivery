@@ -31,10 +31,10 @@ export function OverviewTab({ data, onGo, onNewProduct, onNewPromotion }: Overvi
   const livePromos = promotions.filter((promotion) => isPromotionLive(promotion)).length;
 
   const stats = [
-    { n: newOrders, label: 'Pedidos novos', sub: 'Abrir pedidos', color: newOrders ? '#d3301f' : '#1c1611', go: () => onGo('orders', { orderFilter: 'novos' }) },
-    { n: products.length - soldOut, label: 'Itens no cardápio', sub: 'Gerenciar cardápio', color: '#1c1611', go: () => onGo('menu') },
-    { n: soldOut, label: 'Esgotados hoje', sub: soldOut ? 'Ver quais' : 'Nada esgotado', color: soldOut ? '#d3301f' : '#1c1611', go: () => onGo('menu') },
-    { n: livePromos, label: 'Promoções no ar', sub: 'Ver promoções', color: '#178a45', go: () => onGo('promos') },
+    { n: newOrders, label: 'Pedidos novos', sub: 'Abrir pedidos', color: newOrders ? 'var(--adm-accent)' : 'var(--adm-ink)', go: () => onGo('orders', { orderFilter: 'novos' }) },
+    { n: products.length - soldOut, label: 'Itens no cardápio', sub: 'Gerenciar cardápio', color: 'var(--adm-ink)', go: () => onGo('menu') },
+    { n: soldOut, label: 'Esgotados hoje', sub: soldOut ? 'Ver quais' : 'Nada esgotado', color: soldOut ? 'var(--adm-accent)' : 'var(--adm-ink)', go: () => onGo('menu') },
+    { n: livePromos, label: 'Promoções no ar', sub: 'Ver promoções', color: 'var(--adm-green-text)', go: () => onGo('promos') },
   ];
 
   const commitBanner = () => {
@@ -49,7 +49,7 @@ export function OverviewTab({ data, onGo, onNewProduct, onNewPromotion }: Overvi
         className={cn(CARD, CARD_PAD, 'flex flex-wrap items-center justify-between gap-5')}
       >
         <div>
-          <h2 id="status-title" className="m-0 text-[13px] font-extrabold tracking-[.14em] text-[#6a5c4d]">
+          <h2 id="status-title" className="m-0 text-[13px] font-extrabold tracking-[.14em] text-(--adm-muted)">
             STATUS DA LOJA
           </h2>
           <div className="mt-2 flex items-center gap-3">
@@ -83,7 +83,7 @@ export function OverviewTab({ data, onGo, onNewProduct, onNewPromotion }: Overvi
             key={stat.label}
             type="button"
             onClick={stat.go}
-            className="cursor-pointer rounded-2xl border border-[#e4dccf] bg-white px-5 py-[18px] text-left transition-[border-color,translate] duration-150 hover:-translate-y-0.5 hover:border-[#1c1611]"
+            className="cursor-pointer rounded-2xl border border-(--adm-line) bg-(--adm-card) px-5 py-[18px] text-left transition-[border-color,translate] duration-150 hover:-translate-y-0.5 hover:border-(--adm-ink)"
           >
             <div className="font-display text-[40px] leading-none" style={{ color: stat.color }}>
               {stat.n}
@@ -126,14 +126,14 @@ export function OverviewTab({ data, onGo, onNewProduct, onNewPromotion }: Overvi
           onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()}
           className={cn(INPUT, 'mt-3.5')}
         />
-        <div className="mt-3 overflow-hidden rounded-[10px] border border-dashed border-[#d8cdbd]">
-          <div className={cn('bg-[#faf7f2] px-3 py-1.5 font-mono text-[11px]', MUTED)}>
+        <div className="mt-3 overflow-hidden rounded-[10px] border border-dashed border-(--adm-dashed)">
+          <div className={cn('bg-(--adm-faint) px-3 py-1.5 font-mono text-[11px]', MUTED)}>
             prévia{settings.bannerEnabled ? ' · no ar' : ' · desligado'}
           </div>
           <div
             className={cn(
-              'px-3.5 py-2.5 text-center text-sm font-bold text-[#1a1109]',
-              settings.bannerEnabled ? 'bg-[#f2b53a]' : 'bg-[#eadfcb]',
+              'px-3.5 py-2.5 text-center text-sm font-bold',
+              settings.bannerEnabled ? 'bg-[#f2b53a] text-[#1a1109]' : 'bg-(--adm-banner-off) text-(--adm-muted)',
             )}
           >
             {bannerText || 'Escreva o aviso acima'}
@@ -148,7 +148,7 @@ export function OverviewTab({ data, onGo, onNewProduct, onNewPromotion }: Overvi
         <button
           type="button"
           onClick={onNewPromotion}
-          className="h-[50px] cursor-pointer rounded-xl border-[1.5px] border-[#1c1611] bg-transparent px-[22px] text-sm font-extrabold tracking-[.04em] text-[#1c1611] hover:bg-[#1c1611] hover:text-white"
+          className="h-[50px] cursor-pointer rounded-xl border-[1.5px] border-(--adm-ink) bg-transparent px-[22px] text-sm font-extrabold tracking-[.04em] text-(--adm-ink) hover:bg-(--adm-ink) hover:text-(--adm-ink-inverse)"
         >
           + NOVA PROMOÇÃO
         </button>

@@ -2,6 +2,7 @@ import { Check, LogOut } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '../../routes';
+import { ThemeToggle } from '../layout/ThemeToggle/ThemeToggle';
 import type { StoreStatusOverride } from '../../types/store';
 import { cn } from '../../utils/cn';
 import { TABS, type AdminTab } from './adminTabs';
@@ -12,7 +13,7 @@ function Logo({ small }: { small?: boolean }) {
   return (
     <span
       className={cn(
-        'block flex-none -rotate-4 rounded-md bg-[#d3301f] font-display leading-none text-white',
+        'block flex-none -rotate-4 rounded-md bg-(--adm-accent) font-display leading-none text-white',
         small ? 'px-[7px] pt-1 pb-[3px] text-base' : 'px-2 pt-1 pb-[3px] text-[19px]',
       )}
     >
@@ -37,7 +38,7 @@ function ToastView({ toast }: { toast: Toast | null }) {
       aria-live="polite"
       className={cn(
         'pointer-events-none fixed bottom-[88px] left-1/2 z-80 flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-2.5 rounded-xl px-[18px] py-3 text-sm font-bold text-white shadow-[0_14px_34px_-12px_rgba(0,0,0,.5)] transition-[translate,opacity] duration-300 min-[960px]:bottom-7',
-        toast?.tone === 'error' ? 'bg-[#b3261e]' : 'bg-[#1c1611]',
+        toast?.tone === 'error' ? 'bg-[#b3261e]' : 'bg-(--adm-chrome) ring-1 ring-(--adm-chrome-line)',
         show ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
       )}
     >
@@ -89,11 +90,11 @@ export function AdminShell({
   const countFor = (id: AdminTab) => (id === 'orders' ? newOrders : id === 'promos' ? livePromos : 0);
 
   return (
-    <div className="flex min-h-screen bg-[#f4efe7] font-sans text-[15px] leading-normal text-[#1c1611] antialiased">
+    <div className="flex min-h-screen bg-(--adm-page) font-sans text-[15px] leading-normal text-(--adm-ink) antialiased">
       <title>{`${newOrders ? `(${newOrders}) ` : ''}${title} — Painel S.O.S`}</title>
       <meta name="robots" content="noindex, nofollow" />
 
-      <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col bg-[#1c1611] px-4 py-[22px] text-[#f4efe7] min-[960px]:flex">
+      <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-(--adm-chrome-line) bg-(--adm-chrome) px-4 py-[22px] text-[#f4efe7] min-[960px]:flex">
         <div className="flex items-center gap-2.5 px-2">
           <Logo />
           <span className="flex flex-col leading-[1.1]">
@@ -121,7 +122,7 @@ export function AdminShell({
                   <span
                     className={cn(
                       'rounded-full px-2 py-px text-xs font-extrabold',
-                      item.id === 'orders' ? 'bg-[#d3301f]' : 'bg-[rgba(244,239,231,.12)]',
+                      item.id === 'orders' ? 'bg-(--adm-accent)' : 'bg-[rgba(244,239,231,.12)]',
                     )}
                   >
                     {count}
@@ -139,13 +140,16 @@ export function AdminShell({
             </div>
             <div className="mt-0.5 text-[#a89986]">{status.subtitle}</div>
           </div>
-          <Link
-            to={ROUTES.home}
-            target="_blank"
-            className="flex h-11 items-center justify-center rounded-[10px] border border-[rgba(244,239,231,.18)] text-sm font-bold text-[#f4efe7] hover:opacity-85"
-          >
-            Ver site ↗
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              to={ROUTES.home}
+              target="_blank"
+              className="flex h-11 flex-1 items-center justify-center rounded-[10px] border border-[rgba(244,239,231,.18)] text-sm font-bold text-[#f4efe7] hover:opacity-85"
+            >
+              Ver site ↗
+            </Link>
+            <ThemeToggle variant="sidebar" />
+          </div>
           <button
             type="button"
             onClick={onSignOut}
@@ -157,7 +161,7 @@ export function AdminShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-[#e4dccf] bg-[rgba(244,239,231,.92)] backdrop-blur-md">
+        <header className="sticky top-0 z-30 border-b border-(--adm-line) bg-(--adm-header) backdrop-blur-md">
           <div className="mx-auto flex h-[60px] max-w-[1120px] items-center justify-between gap-3 px-[clamp(16px,3vw,32px)] min-[960px]:h-[72px]">
             <div className="flex min-w-0 items-center gap-3">
               <span className="min-[960px]:hidden">
@@ -168,14 +172,15 @@ export function AdminShell({
               </h1>
             </div>
             <div className="flex items-center gap-2.5">
-              <span className="flex items-center gap-1.5 text-[13px] font-semibold whitespace-nowrap text-[#6a5c4d] max-[419px]:hidden">
+              <span className="flex items-center gap-1.5 text-[13px] font-semibold whitespace-nowrap text-(--adm-muted) max-[419px]:hidden">
                 <span className="size-[7px] rounded-full bg-[#178a45]" />
                 {savedLabel}
               </span>
+              <ThemeToggle className="min-[960px]:hidden" />
               <Link
                 to={ROUTES.home}
                 target="_blank"
-                className="flex h-10 items-center rounded-[10px] border border-[#e4dccf] bg-white px-3.5 text-[13px] font-bold whitespace-nowrap text-[#1c1611] min-[960px]:hidden"
+                className="flex h-10 items-center rounded-[10px] border border-(--adm-line) bg-(--adm-card) px-3.5 text-[13px] font-bold whitespace-nowrap text-(--adm-ink) min-[960px]:hidden"
               >
                 Site ↗
               </Link>
@@ -190,7 +195,7 @@ export function AdminShell({
 
       <nav
         aria-label="Painel"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 bg-[#1c1611] px-1.5 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] min-[960px]:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-(--adm-chrome-line) bg-(--adm-chrome) px-1.5 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] min-[960px]:hidden"
       >
         {TABS.map((item) => {
           const on = item.id === tab;
@@ -209,7 +214,7 @@ export function AdminShell({
               <span className={cn('size-1.5 rounded-full', on ? 'bg-[#f2b53a]' : 'bg-transparent')} />
               {item.short}
               {alert > 0 && (
-                <span className="absolute top-1.5 right-[calc(50%-26px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[#d3301f] px-[5px] text-[11px] font-extrabold text-white">
+                <span className="absolute top-1.5 right-[calc(50%-26px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-(--adm-accent) px-[5px] text-[11px] font-extrabold text-white">
                   {alert}
                 </span>
               )}

@@ -4,6 +4,7 @@ import { AdminShell } from '../../components/admin/AdminShell';
 import type { AdminTab } from '../../components/admin/adminTabs';
 import { BTN_PRIMARY, Field, INPUT } from '../../components/admin/adminUi';
 import { MenuTab } from '../../components/admin/MenuTab';
+import { ThemeToggle } from '../../components/layout/ThemeToggle/ThemeToggle';
 import { OrdersTab, type OrderFilter } from '../../components/admin/OrdersTab';
 import { OverviewTab } from '../../components/admin/OverviewTab';
 import { ProductDrawer } from '../../components/admin/ProductDrawer';
@@ -18,16 +19,17 @@ import { isPromotionLive } from '../../utils/promotions';
 /** Tela centralizada (login, carregando, sem permissão). */
 function CenteredCard({ children }: { children: ReactNode }) {
   return (
-    <div className="grid min-h-screen place-items-center bg-[#f4efe7] p-4 font-sans text-[#1c1611]">
+    <div className="relative grid min-h-screen place-items-center bg-(--adm-page) p-4 font-sans text-(--adm-ink)">
+      <ThemeToggle className="absolute top-4 right-4" />
       <meta name="robots" content="noindex, nofollow" />
-      <div className="w-full max-w-[420px] rounded-[18px] border border-[#e4dccf] bg-white p-7">
+      <div className="w-full max-w-[420px] rounded-[18px] border border-(--adm-line) bg-(--adm-card) p-7">
         <div className="mb-5 flex items-center gap-2.5">
-          <span className="block -rotate-4 rounded-md bg-[#d3301f] px-2 pt-1 pb-[3px] font-display text-[19px] leading-none text-white">
+          <span className="block -rotate-4 rounded-md bg-(--adm-accent) px-2 pt-1 pb-[3px] font-display text-[19px] leading-none text-white">
             S.O.S
           </span>
           <span className="flex flex-col leading-[1.1]">
             <span className="font-display text-[15px] tracking-[.05em]">DELIVERY</span>
-            <span className="text-[11px] font-bold tracking-[.1em] text-[#6a5c4d]">PAINEL DO LOJISTA</span>
+            <span className="text-[11px] font-bold tracking-[.1em] text-(--adm-muted)">PAINEL DO LOJISTA</span>
           </span>
         </div>
         {children}
@@ -79,7 +81,7 @@ function LoginForm() {
           />
         </Field>
         {error && (
-          <p role="alert" className="m-0 rounded-[10px] bg-[#ff5a4a]/14 px-3.5 py-2.5 text-sm font-bold text-[#b3261e]">
+          <p role="alert" className="m-0 rounded-[10px] bg-[#ff5a4a]/14 px-3.5 py-2.5 text-sm font-bold text-(--adm-danger)">
             {error}
           </p>
         )}
@@ -177,7 +179,7 @@ function AdminGate({ session }: { session: Session }) {
   if (check === 'admin') return <Dashboard />;
   return (
     <CenteredCard>
-      <p className="m-0 text-[#6a5c4d]">
+      <p className="m-0 text-(--adm-muted)">
         {check === 'checking'
           ? 'Verificando acesso…'
           : `O usuário ${session.user.email ?? ''} não tem permissão de administrador.`}
@@ -199,16 +201,6 @@ export function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
-  // O painel tem cores próprias e fica sempre no tema claro.
-  useEffect(() => {
-    const root = document.documentElement;
-    const previous = root.dataset.theme;
-    delete root.dataset.theme;
-    return () => {
-      if (previous) root.dataset.theme = previous;
-    };
-  }, []);
-
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => {
@@ -223,13 +215,13 @@ export function AdminPage() {
     return (
       <CenteredCard>
         <h1 className="m-0 font-display text-[28px] font-normal uppercase">Supabase não configurado</h1>
-        <p className="mt-3 mb-0 text-[#6a5c4d]">
+        <p className="mt-3 mb-0 text-(--adm-muted)">
           Defina <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> no <code>.env</code> (ou nas
           variáveis de ambiente da hospedagem) e publique o site de novo.
         </p>
       </CenteredCard>
     );
   }
-  if (!ready) return <div className="min-h-screen bg-[#f4efe7]" />;
+  if (!ready) return <div className="min-h-screen bg-(--adm-page)" />;
   return session ? <AdminGate session={session} /> : <LoginForm />;
 }

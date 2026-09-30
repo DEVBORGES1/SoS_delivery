@@ -133,8 +133,8 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
 
   const imageTile = (selected: boolean) =>
     cn(
-      'relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-[10px] border-[3px] bg-[#eee6da] bg-[repeating-linear-gradient(135deg,rgba(28,22,17,.06)_0_8px,transparent_8px_16px)] p-0 text-[11px] font-bold text-[#6a5c4d]',
-      selected ? 'border-[#d3301f]' : 'border-transparent',
+      'relative grid aspect-square cursor-pointer place-items-center overflow-hidden rounded-[10px] border-[3px] bg-(--adm-thumb) bg-[repeating-linear-gradient(135deg,var(--adm-stripe)_0_8px,transparent_8px_16px)] p-0 text-[11px] font-bold text-(--adm-muted)',
+      selected ? 'border-(--adm-accent)' : 'border-transparent',
     );
 
   return (
@@ -175,7 +175,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
               value={draft.name}
               placeholder="Ex.: Plantão Noturno"
               onChange={(event) => update('name', event.target.value)}
-              className={cn(INPUT, nameError && 'border-[#b3261e]')}
+              className={cn(INPUT, nameError && 'border-(--adm-danger)')}
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -235,7 +235,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
                 onClick={() => fileInput.current?.click()}
                 disabled={uploading}
                 aria-label="Enviar foto do celular ou do computador"
-                className={cn(imageTile(false), 'border-dashed border-[#d8cdbd] bg-white bg-none')}
+                className={cn(imageTile(false), 'border-dashed border-(--adm-dashed) bg-(--adm-card) bg-none')}
               >
                 <span className="flex flex-col items-center gap-1 px-1 text-center">
                   {uploading ? (
@@ -304,7 +304,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
                   key={label}
                   type="button"
                   onClick={() => update('badge', label === 'Sem selo' ? '' : label)}
-                  className="h-8 cursor-pointer rounded-full border border-[#e4dccf] bg-[#faf7f2] px-3 text-[13px] font-semibold text-[#1c1611]"
+                  className="h-8 cursor-pointer rounded-full border border-(--adm-line) bg-(--adm-faint) px-3 text-[13px] font-semibold text-(--adm-ink)"
                 >
                   {label}
                 </button>
@@ -312,7 +312,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
             </div>
           </Field>
 
-          <div className="flex items-center justify-between gap-3 rounded-xl bg-[#faf7f2] px-4 py-3.5">
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-(--adm-faint) px-4 py-3.5">
             <div>
               <div className="font-bold">Disponível no site</div>
               <div className={cn('text-[13px]', MUTED)}>Desligue quando acabar o ingrediente.</div>
@@ -320,7 +320,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
             <Switch label="Disponível" checked={draft.available} onChange={(value) => update('available', value)} />
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-xl bg-[#faf7f2] px-4 py-3.5">
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-(--adm-faint) px-4 py-3.5">
             <div>
               <div className="font-bold">Destaque na capa</div>
               <div className={cn('text-[13px]', MUTED)}>Aparece no card sobre a foto principal do site.</div>
@@ -377,7 +377,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
                   type="button"
                   aria-label={`Remover ${addon.name || 'adicional'}`}
                   onClick={() => setAddons((current) => current.filter((_, i) => i !== index))}
-                  className="grid size-11 flex-none cursor-pointer place-items-center rounded-[10px] text-[#6a5c4d] hover:bg-[#f4efe7] hover:text-[#b3261e]"
+                  className="grid size-11 flex-none cursor-pointer place-items-center rounded-[10px] text-(--adm-muted) hover:bg-(--adm-soft) hover:text-(--adm-danger)"
                 >
                   <Trash2 size={18} aria-hidden="true" />
                 </button>
@@ -390,7 +390,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
           <span className={cn('font-mono text-[11px]', MUTED)}>prévia no site</span>
           <div
             className={cn(
-              'overflow-hidden rounded-[18px] border border-[#e4dccf] bg-surface',
+              'overflow-hidden rounded-[18px] border border-(--adm-line) bg-surface',
               !draft.available && 'opacity-60',
             )}
           >
@@ -420,7 +420,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
                 <span className="text-lg font-extrabold">
                   {parsedPrice && parsedPrice > 0 ? formatCurrency(parsedPrice) : 'R$ 0,00'}
                 </span>
-                <span className="flex h-9 items-center rounded-full border-[1.5px] border-[#e4dccf] px-3.5 text-xs font-extrabold">
+                <span className="flex h-9 items-center rounded-full border-[1.5px] border-(--adm-line) px-3.5 text-xs font-extrabold">
                   {draft.available ? 'Adicionar +' : 'Esgotado'}
                 </span>
               </div>

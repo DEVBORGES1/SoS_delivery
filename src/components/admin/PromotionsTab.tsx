@@ -111,7 +111,7 @@ export function PromotionDrawer({ promotion, data, onClose }: PromotionDrawerPro
     >
       <div className="flex flex-col gap-4">
         {pricedProducts.length === 0 && (
-          <p className="m-0 rounded-xl bg-[#fff6dc] px-3.5 py-3 text-sm">
+          <p className="m-0 rounded-xl bg-(--adm-note-bg) px-3.5 py-3 text-sm">
             Defina o preço de algum item no Cardápio antes de criar uma promoção.
           </p>
         )}
@@ -168,7 +168,7 @@ export function PromotionDrawer({ promotion, data, onClose }: PromotionDrawerPro
           />
         </Field>
         {product && (
-          <div className="flex items-center gap-3.5 rounded-[14px] bg-[#faf7f2] px-[18px] py-4">
+          <div className="flex items-center gap-3.5 rounded-[14px] bg-(--adm-faint) px-[18px] py-4">
             <Thumb src={product.image} className="size-16" />
             <div className="min-w-0 flex-1">
               <span className="rounded-[5px] bg-[#f2b53a] px-[7px] py-0.5 text-[11px] font-extrabold text-[#1a1109] uppercase">
@@ -177,9 +177,9 @@ export function PromotionDrawer({ promotion, data, onClose }: PromotionDrawerPro
               <div className="mt-1 text-base font-extrabold">{product.name}</div>
               <div className="flex flex-wrap items-baseline gap-2">
                 <span className={cn('text-[13px] line-through', MUTED)}>{formatCurrency(product.price)}</span>
-                <span className="text-xl font-extrabold text-[#d3301f]">{formatCurrency(newPrice)}</span>
+                <span className="text-xl font-extrabold text-(--adm-accent)">{formatCurrency(newPrice)}</span>
                 {newPrice < product.price && newPrice > 0 && (
-                  <span className="text-[13px] font-bold text-[#178a45]">
+                  <span className="text-[13px] font-bold text-(--adm-green-text)">
                     economia de {formatCurrency(product.price - newPrice)}
                   </span>
                 )}
@@ -188,7 +188,7 @@ export function PromotionDrawer({ promotion, data, onClose }: PromotionDrawerPro
           </div>
         )}
         {invalid && product && (
-          <span role="alert" className="text-[13px] font-semibold text-[#b3261e]">
+          <span role="alert" className="text-[13px] font-semibold text-(--adm-danger)">
             O preço promocional precisa ser menor que o preço normal.
           </span>
         )}
@@ -218,7 +218,7 @@ export function PromotionsTab({ data, onNew, onEdit }: PromotionsTabProps) {
       </div>
 
       {promotions.length === 0 ? (
-        <div className="rounded-[18px] border-[1.5px] border-dashed border-[#d8cdbd] bg-white px-5 py-12 text-center">
+        <div className="rounded-[18px] border-[1.5px] border-dashed border-(--adm-dashed) bg-(--adm-card) px-5 py-12 text-center">
           <div className="font-display text-[28px] uppercase">Nenhuma promoção ainda</div>
           <p className={cn('mt-1.5 mb-[18px]', MUTED)}>Que tal um lanche em oferta pra movimentar a quarta?</p>
           <button type="button" onClick={onNew} className={BTN_PRIMARY}>
@@ -257,7 +257,7 @@ export function PromotionsTab({ data, onNew, onEdit }: PromotionsTabProps) {
                   </h3>
                   <div className="flex items-baseline gap-2.5">
                     <span className={cn('text-sm line-through', MUTED)}>{formatCurrency(price)}</span>
-                    <span className="text-[22px] font-extrabold text-[#d3301f]">
+                    <span className="text-[22px] font-extrabold text-(--adm-accent)">
                       {formatCurrency(calculatePromoPrice(price, promotion))}
                     </span>
                   </div>
