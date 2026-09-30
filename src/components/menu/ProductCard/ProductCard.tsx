@@ -1,8 +1,8 @@
 import { Plus } from 'lucide-react';
 import type { Product } from '../../../types/product';
 import { cn } from '../../../utils/cn';
-import { formatCurrency } from '../../../utils/currency';
 import { Badge } from '../../ui/Badge/Badge';
+import { ProductPrice } from '../ProductPrice/ProductPrice';
 import { ProductImage } from './ProductImage';
 
 export interface ProductItemProps {
@@ -52,7 +52,7 @@ export function ProductCard({ product, onOpen, onQuickAdd }: ProductItemProps) {
         </h3>
         <p className="line-clamp-2 text-[14.5px] leading-[1.45] text-muted">{product.description}</p>
         <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-          <span className="text-[21px] font-extrabold tracking-[-.01em]">{formatCurrency(product.price)}</span>
+          <ProductPrice product={product} className="text-[21px] font-extrabold tracking-[-.01em]" />
           <button
             type="button"
             onClick={() => onQuickAdd(product)}

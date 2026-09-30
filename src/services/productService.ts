@@ -5,7 +5,15 @@ import { defaultStoreSettings } from '../data/storeConfig';
 import { useCartStore } from '../stores/cartStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import type { Category, Product } from '../types/product';
-import { productFromRow, settingsFromRow, type ProductRow, type StoreSettingsRow } from './siteDataMapper';
+import { applyPromotions } from '../utils/promotions';
+import {
+  productFromRow,
+  promotionFromRow,
+  settingsFromRow,
+  type ProductRow,
+  type PromotionRow,
+  type StoreSettingsRow,
+} from './siteDataMapper';
 import { isSupabaseConfigured, supabaseConfig } from './supabaseConfig';
 
 export interface Catalog {
@@ -43,15 +51,17 @@ async function loadRemoteCatalog(): Promise<Catalog> {
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const [productRows, settingsRows] = await Promise.all([
+    const [productRows, settingsRows, promotionRows] = await Promise.all([
       fetchTable<ProductRow[]>('products?select=*&order=sort_order.asc,name.asc', controller.signal),
       fetchTable<StoreSettingsRow[]>('store_settings?select=*&id=eq.1', controller.signal),
+      // Sem a tabela de promoções (banco ainda não atualizado), o cardápio segue sem elas.
+      fetchTable<PromotionRow[]>('promotions?select=*&active=eq.true', controller.signal).catch(() => []),
     ]);
 
     if (settingsRows[0]) {
       useSettingsStore.getState().setSettings(settingsFromRow(settingsRows[0], defaultStoreSettings));
     }
-    return buildCatalog(productRows.map(productFromRow));
+    return buildCatalog(applyPromotions(productRows.map(productFromRow), promotionRows.map(promotionFromRow)));
   } catch (error) {
     console.warn('Não foi possível carregar os dados do Supabase; usando os dados locais.', error);
     return getLocalCatalog();

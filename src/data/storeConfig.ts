@@ -8,8 +8,6 @@ export const storeConfig: StoreInfo = {
   name: 'S.O.S Delivery Videira',
   shortName: 'S.O.S Delivery',
   tagline: 'Hambúrguer artesanal feito na hora. Deu fome, chama que a gente resgata.',
-  whatsapp: '5549988083394',
-  whatsappDisplay: '(49) 98808-3394',
   instagram: '@sos_delivery_videira',
   instagramUrl: 'https://www.instagram.com/sos_delivery_videira',
   address: 'Rua Saul Brandalise, 588',
@@ -41,4 +39,7 @@ export const defaultStoreSettings: StoreSettings = {
   deliveryFee: 0,
   deliveryEta: '~40 min',
   pickupEta: '~20 min',
+  whatsapp: '5549988083394',
+  bannerEnabled: false,
+  bannerText: '',
 };

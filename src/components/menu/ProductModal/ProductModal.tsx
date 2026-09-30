@@ -1,12 +1,12 @@
 import { X } from 'lucide-react';
 import { useUIStore } from '../../../stores/uiStore';
 import type { Product } from '../../../types/product';
-import { formatCurrency } from '../../../utils/currency';
 import { Badge } from '../../ui/Badge/Badge';
 import { Dialog } from '../../ui/Dialog/Dialog';
 import { TextAreaField } from '../../ui/Input/TextField';
 import { QuantityStepper } from '../../ui/QuantityStepper/QuantityStepper';
 import { ProductImage } from '../ProductCard/ProductImage';
+import { ProductPrice } from '../ProductPrice/ProductPrice';
 import { AddonOption } from './AddonOption';
 import { AddToCartButton } from './AddToCartButton';
 import { useProductCustomization } from './useProductCustomization';
@@ -40,7 +40,9 @@ function ProductModalContent({ product, onClose }: { product: Product; onClose: 
             {product.name}
           </h2>
           <p className="mt-2.5 text-[15.5px] leading-normal text-muted">{product.description}</p>
-          <p className="mt-3 text-[22px] font-extrabold">{formatCurrency(product.price)}</p>
+          <p className="mt-3">
+            <ProductPrice product={product} className="text-[22px] font-extrabold" />
+          </p>
 
           <div className="mt-[22px] flex items-center justify-between border-y border-line py-3.5">
             <span className="text-base font-extrabold">Quantidade</span>

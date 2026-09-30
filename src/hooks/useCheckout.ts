@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../routes';
-import { getOrderUrl, openWhatsApp } from '../services/whatsappService';
+import { saveOrder } from '../services/orderService';
+import { getOrderUrl, reserveWhatsAppTab } from '../services/whatsappService';
 import type { CheckoutErrors, CheckoutField, CheckoutFormData, OrderConfirmation } from '../types/order';
 import { createOrder } from '../utils/order';
 import { calculateOrderTotals } from '../utils/pricing';
@@ -36,7 +37,8 @@ function focusField(field: CheckoutField) {
   element.focus({ preventScroll: true });
 }
 
-function getSubmitLabel(isOpen: boolean, isEmpty: boolean, hasSendError: boolean, nextOpening: string) {
+function getSubmitLabel(isOpen: boolean, isEmpty: boolean, hasSendError: boolean, isSending: boolean, nextOpening: string) {
+  if (isSending) return 'ENVIANDO PEDIDO…';
   if (!isOpen) return `LOJA FECHADA · ABRE ${nextOpening}`.toUpperCase();
   if (isEmpty) return 'CARRINHO VAZIO';
   if (hasSendError) return 'TENTAR NOVAMENTE';
@@ -63,6 +65,7 @@ export function useCheckout() {
   const currentForm = orderType === form.orderType ? form : { ...form, orderType };
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [hasSendError, setHasSendError] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const setField = useCallback(<K extends CheckoutField>(field: K, value: CheckoutFormData[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -73,7 +76,8 @@ export function useCheckout() {
   const totals = calculateOrderTotals(items, orderType, deliveryFee);
   const isEmpty = items.length === 0;
 
-  const submit = () => {
+  const submit = async () => {
+    if (isSending) return;
     const validationErrors = validateCheckout(currentForm);
     const firstInvalid = Object.keys(validationErrors)[0] as CheckoutField | undefined;
     setErrors(validationErrors);
@@ -82,12 +86,21 @@ export function useCheckout() {
       return;
     }
 
-    const order = createOrder(currentForm, items, categories, deliveryFee);
-    const whatsappUrl = getOrderUrl(order);
-    if (!openWhatsApp(whatsappUrl)) {
+    // A aba do WhatsApp é aberta já no clique; o navegador bloquearia se abrisse depois da espera.
+    const openTab = reserveWhatsAppTab();
+    if (!openTab) {
       setHasSendError(true);
       return;
     }
+
+    setIsSending(true);
+    const draft = createOrder(currentForm, items, categories, deliveryFee);
+    // Salva no painel para usar o número oficial; se o banco falhar, segue com o número provisório.
+    const savedId = await saveOrder(draft);
+    const order = savedId ? { ...draft, id: String(savedId) } : draft;
+    const whatsappUrl = getOrderUrl(order);
+    openTab(whatsappUrl);
+    setIsSending(false);
 
     const confirmation: OrderConfirmation = {
       id: order.id,
@@ -108,7 +121,7 @@ export function useCheckout() {
     totals,
     hasSendError,
     submit,
-    submitDisabled: !isOpen || isEmpty,
-    submitLabel: getSubmitLabel(isOpen, isEmpty, hasSendError, `${nextOpenDay} ${nextOpenTime}`),
+    submitDisabled: !isOpen || isEmpty || isSending,
+    submitLabel: getSubmitLabel(isOpen, isEmpty, hasSendError, isSending, `${nextOpenDay} ${nextOpenTime}`),
   };
 }

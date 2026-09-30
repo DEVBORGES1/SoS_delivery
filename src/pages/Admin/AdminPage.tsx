@@ -1,54 +1,38 @@
 import type { Session } from '@supabase/supabase-js';
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Link } from 'react-router';
-import { FeedbackMessage, type Feedback } from '../../components/admin/adminUi';
-import { ProductsEditor } from '../../components/admin/ProductsEditor';
-import { SettingsEditor } from '../../components/admin/SettingsEditor';
-import { Button } from '../../components/ui/Button/Button';
-import { TextField } from '../../components/ui/Input/TextField';
-import { LogoMark } from '../../components/ui/Logo/Logo';
-import { storeConfig } from '../../data/storeConfig';
-import { ROUTES } from '../../routes';
+import { AdminShell } from '../../components/admin/AdminShell';
+import type { AdminTab } from '../../components/admin/adminTabs';
+import { BTN_PRIMARY, Field, INPUT } from '../../components/admin/adminUi';
+import { MenuTab } from '../../components/admin/MenuTab';
+import { OrdersTab, type OrderFilter } from '../../components/admin/OrdersTab';
+import { OverviewTab } from '../../components/admin/OverviewTab';
+import { ProductDrawer } from '../../components/admin/ProductDrawer';
+import { PromotionDrawer, PromotionsTab } from '../../components/admin/PromotionsTab';
+import { StoreTab } from '../../components/admin/StoreTab';
+import { useAdminData } from '../../components/admin/useAdminData';
 import { describeError, supabase } from '../../services/supabaseClient';
+import type { Product, Promotion } from '../../types/product';
 import { cn } from '../../utils/cn';
+import { isPromotionLive } from '../../utils/promotions';
 
-type Tab = 'loja' | 'cardapio';
-type AdminCheck = 'checking' | 'admin' | 'denied';
-
-function AdminShell({ children, onSignOut }: { children: ReactNode; onSignOut?: () => void }) {
+/** Tela centralizada (login, carregando, sem permissão). */
+function CenteredCard({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-bg">
-      <title>{`Painel — ${storeConfig.name}`}</title>
+    <div className="grid min-h-screen place-items-center bg-[#f4efe7] p-4 font-sans text-[#1c1611]">
       <meta name="robots" content="noindex, nofollow" />
-      <header className="border-b border-line bg-header px-gutter py-3 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[960px] items-center justify-between gap-3">
-          <Link to={ROUTES.home} className="flex items-center gap-2.5" aria-label="Ver o site">
-            <LogoMark />
-            <span className="font-display text-lg tracking-[.06em]">PAINEL</span>
-          </Link>
-          {onSignOut && (
-            <Button variant="ghost" size="xs" onClick={onSignOut} className="h-auto px-0">
-              Sair
-            </Button>
-          )}
+      <div className="w-full max-w-[420px] rounded-[18px] border border-[#e4dccf] bg-white p-7">
+        <div className="mb-5 flex items-center gap-2.5">
+          <span className="block -rotate-4 rounded-md bg-[#d3301f] px-2 pt-1 pb-[3px] font-display text-[19px] leading-none text-white">
+            S.O.S
+          </span>
+          <span className="flex flex-col leading-[1.1]">
+            <span className="font-display text-[15px] tracking-[.05em]">DELIVERY</span>
+            <span className="text-[11px] font-bold tracking-[.1em] text-[#6a5c4d]">PAINEL DO LOJISTA</span>
+          </span>
         </div>
-      </header>
-      <main className="mx-auto max-w-[960px] px-gutter py-[clamp(20px,4vw,40px)]">{children}</main>
-    </div>
-  );
-}
-
-function NotConfigured() {
-  return (
-    <AdminShell>
-      <div className="rounded-sheet border border-line bg-surface p-6">
-        <h1 className="font-display text-3xl uppercase">Supabase não configurado</h1>
-        <p className="mt-3 text-muted">
-          Defina <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> no arquivo <code>.env</code> (ou
-          nas variáveis de ambiente da hospedagem) e publique o site de novo. O passo a passo está no README.
-        </p>
+        {children}
       </div>
-    </AdminShell>
+    </div>
   );
 }
 
@@ -56,107 +40,158 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [error, setError] = useState('');
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase) return;
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
-    if (error) setFeedback({ tone: 'error', message: describeError(error) });
+    if (signInError) setError(describeError(signInError));
   };
 
   return (
-    <AdminShell>
-      <form onSubmit={submit} className="mx-auto flex max-w-[420px] flex-col gap-4 rounded-sheet border border-line bg-surface p-6">
-        <h1 className="font-display text-[34px] leading-none uppercase">Entrar no painel</h1>
-        <TextField
-          id="admin-email"
-          label="E-mail"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <TextField
-          id="admin-password"
-          label="Senha"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <FeedbackMessage feedback={feedback} />
-        <Button type="submit" size="md" shape="soft" disabled={loading}>
+    <CenteredCard>
+      <title>Entrar — Painel S.O.S</title>
+      <form onSubmit={submit} className="flex flex-col gap-4">
+        <h1 className="m-0 font-display text-[32px] leading-none font-normal uppercase">Entrar no painel</h1>
+        <Field id="admin-email" label="E-mail">
+          <input
+            id="admin-email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className={INPUT}
+          />
+        </Field>
+        <Field id="admin-password" label="Senha">
+          <input
+            id="admin-password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className={INPUT}
+          />
+        </Field>
+        {error && (
+          <p role="alert" className="m-0 rounded-[10px] bg-[#ff5a4a]/14 px-3.5 py-2.5 text-sm font-bold text-[#b3261e]">
+            {error}
+          </p>
+        )}
+        <button type="submit" disabled={loading} className={cn(BTN_PRIMARY, 'h-[50px]')}>
           {loading ? 'ENTRANDO…' : 'ENTRAR'}
-        </Button>
+        </button>
       </form>
+    </CenteredCard>
+  );
+}
+
+type Editing =
+  | { kind: 'product'; product: Product | null; category?: string }
+  | { kind: 'promotion'; promotion: Promotion | null }
+  | null;
+
+function Dashboard() {
+  const data = useAdminData();
+  const [tab, setTab] = useState<AdminTab>('orders');
+  const [orderFilter, setOrderFilter] = useState<OrderFilter>('ativos');
+  const [editing, setEditing] = useState<Editing>(null);
+
+  const go = (next: AdminTab, options?: { orderFilter?: OrderFilter }) => {
+    if (options?.orderFilter) setOrderFilter(options.orderFilter);
+    setTab(next);
+    window.scrollTo(0, 0);
+  };
+  const newProduct = (category?: string) => setEditing({ kind: 'product', product: null, category });
+  const newPromotion = () => setEditing({ kind: 'promotion', promotion: null });
+  const signOut = () => void supabase?.auth.signOut();
+
+  return (
+    <AdminShell
+      tab={tab}
+      onTab={go}
+      newOrders={data.orders.filter((order) => order.status === 'novo').length}
+      livePromos={data.promotions.filter((promotion) => isPromotionLive(promotion)).length}
+      statusOverride={data.settings.statusOverride}
+      savedAt={data.savedAt}
+      toast={data.toast}
+      onSignOut={signOut}
+    >
+      {tab === 'orders' && <OrdersTab data={data} filter={orderFilter} onFilter={setOrderFilter} />}
+      {tab === 'overview' && (
+        <OverviewTab data={data} onGo={go} onNewProduct={() => newProduct()} onNewPromotion={newPromotion} />
+      )}
+      {tab === 'menu' && (
+        <MenuTab data={data} onNew={newProduct} onEdit={(product) => setEditing({ kind: 'product', product })} />
+      )}
+      {tab === 'promos' && (
+        <PromotionsTab
+          data={data}
+          onNew={newPromotion}
+          onEdit={(promotion) => setEditing({ kind: 'promotion', promotion })}
+        />
+      )}
+      {tab === 'store' && <StoreTab data={data} onSignOut={signOut} />}
+
+      {editing?.kind === 'product' && (
+        <ProductDrawer
+          key={editing.product?.id ?? 'novo'}
+          product={editing.product}
+          defaultCategory={editing.category}
+          data={data}
+          onClose={() => setEditing(null)}
+        />
+      )}
+      {editing?.kind === 'promotion' && (
+        <PromotionDrawer
+          key={editing.promotion?.id ?? 'nova'}
+          promotion={editing.promotion}
+          data={data}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </AdminShell>
   );
 }
 
-function Dashboard({ session }: { session: Session }) {
-  const [tab, setTab] = useState<Tab>('loja');
-  const [adminCheck, setAdminCheck] = useState<AdminCheck>('checking');
+type AdminCheck = 'checking' | 'admin' | 'denied';
+
+function AdminGate({ session }: { session: Session }) {
+  const [check, setCheck] = useState<AdminCheck>('checking');
 
   useEffect(() => {
     let active = true;
     supabase?.rpc('is_admin').then(({ data, error }) => {
-      if (active) setAdminCheck(!error && data === true ? 'admin' : 'denied');
+      if (active) setCheck(!error && data === true ? 'admin' : 'denied');
     });
     return () => {
       active = false;
     };
   }, [session.user.id]);
 
-  const signOut = () => void supabase?.auth.signOut();
-
-  if (adminCheck !== 'admin') {
-    return (
-      <AdminShell onSignOut={signOut}>
-        <p className="py-10 text-center text-muted">
-          {adminCheck === 'checking'
-            ? 'Verificando acesso…'
-            : `O usuário ${session.user.email ?? ''} não tem permissão de administrador.`}
-        </p>
-      </AdminShell>
-    );
-  }
-
+  if (check === 'admin') return <Dashboard />;
   return (
-    <AdminShell onSignOut={signOut}>
-      <h1 className="sr-only">Painel da loja</h1>
-      <div role="tablist" aria-label="Seções do painel" className="mb-5 flex gap-2">
-        {(
-          [
-            ['loja', 'Loja e horários'],
-            ['cardapio', 'Cardápio'],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            id={`tab-${id}`}
-            aria-selected={tab === id}
-            aria-controls={`panel-${id}`}
-            onClick={() => setTab(id)}
-            className={cn(
-              'h-11 rounded-full border-[1.5px] px-5 text-[15px] font-bold transition-colors duration-200',
-              tab === id ? 'border-accent bg-accent text-accent-ink' : 'border-line hover:bg-line',
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === 'loja' ? <SettingsEditor /> : <ProductsEditor />}
-      </div>
-    </AdminShell>
+    <CenteredCard>
+      <p className="m-0 text-[#6a5c4d]">
+        {check === 'checking'
+          ? 'Verificando acesso…'
+          : `O usuário ${session.user.email ?? ''} não tem permissão de administrador.`}
+      </p>
+      {check === 'denied' && (
+        <button
+          type="button"
+          onClick={() => void supabase?.auth.signOut()}
+          className={cn(BTN_PRIMARY, 'mt-4 h-[50px] w-full')}
+        >
+          SAIR
+        </button>
+      )}
+    </CenteredCard>
   );
 }
 
@@ -174,7 +209,17 @@ export function AdminPage() {
     return () => data.subscription.unsubscribe();
   }, []);
 
-  if (!supabase) return <NotConfigured />;
-  if (!ready) return <AdminShell>{null}</AdminShell>;
-  return session ? <Dashboard session={session} /> : <LoginForm />;
+  if (!supabase) {
+    return (
+      <CenteredCard>
+        <h1 className="m-0 font-display text-[28px] font-normal uppercase">Supabase não configurado</h1>
+        <p className="mt-3 mb-0 text-[#6a5c4d]">
+          Defina <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> no <code>.env</code> (ou nas
+          variáveis de ambiente da hospedagem) e publique o site de novo.
+        </p>
+      </CenteredCard>
+    );
+  }
+  if (!ready) return <div className="min-h-screen bg-[#f4efe7]" />;
+  return session ? <AdminGate session={session} /> : <LoginForm />;
 }

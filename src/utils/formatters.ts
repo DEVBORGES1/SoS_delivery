@@ -15,3 +15,11 @@ export function maskPhone(value: string): string {
 export function pluralizeItems(count: number): string {
   return `${count} ${count === 1 ? 'item' : 'itens'}`;
 }
+
+/** "5549988083394" → "(49) 98808-3394" */
+export function formatWhatsappDisplay(number: string): string {
+  const digits = onlyDigits(number).replace(/^55(?=\d{10,11}$)/, '');
+  if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return number;
+}

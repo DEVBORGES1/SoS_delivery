@@ -29,8 +29,6 @@ export interface StoreInfo {
   name: string;
   shortName: string;
   tagline: string;
-  whatsapp: string;
-  whatsappDisplay: string;
   instagram: string;
   instagramUrl: string;
   address: string;
@@ -52,6 +50,11 @@ export interface StoreSettings {
   deliveryFee: number;
   deliveryEta: string;
   pickupEta: string;
+  /** Número que recebe os pedidos, só dígitos com DDI + DDD (ex.: 5549988083394). */
+  whatsapp: string;
+  /** Aviso em faixa amarela no topo do site. */
+  bannerEnabled: boolean;
+  bannerText: string;
 }
 
 export interface StoreStatus {

@@ -6,6 +6,7 @@ import { CartToast } from '../cart/CartToast/CartToast';
 import { ProductModal } from '../menu/ProductModal/ProductModal';
 import { Footer } from './Footer/Footer';
 import { Header } from './Header/Header';
+import { AnnouncementBanner } from './StoreBanner/AnnouncementBanner';
 import { ClosedStoreBanner } from './StoreBanner/ClosedStoreBanner';
 
 export function AppLayout() {
@@ -25,6 +26,7 @@ export function AppLayout() {
         Pular para o conteúdo
       </a>
       <Header />
+      {pathname !== ROUTES.confirmation && <AnnouncementBanner />}
       {pathname !== ROUTES.confirmation && <ClosedStoreBanner />}
       <main id="conteudo">
         <Suspense fallback={<div className="min-h-screen" />}>

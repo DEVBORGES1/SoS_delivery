@@ -58,3 +58,41 @@ export interface OrderConfirmation {
   paymentMethod: PaymentMethod;
   whatsappUrl: string;
 }
+
+/** Etapas de um pedido no painel. */
+export type OrderStatus = 'novo' | 'aceito' | 'preparando' | 'saiu' | 'pronto' | 'concluido' | 'cancelado';
+
+/** Item como fica gravado no banco (tabela `orders`, coluna `items`). */
+export interface SavedOrderLine {
+  name: string;
+  quantity: number;
+  addons: string[];
+  note: string;
+  lineTotal: number;
+}
+
+export interface OrderHistoryEntry {
+  s: OrderStatus;
+  /** Momento da mudança, em milissegundos. */
+  at: number;
+}
+
+/** Pedido como o painel `/admin` enxerga. */
+export interface AdminOrder {
+  id: number;
+  createdAt: number;
+  status: OrderStatus;
+  customerName: string;
+  customerPhone: string;
+  orderType: OrderType;
+  address: string;
+  reference: string;
+  paymentMethod: PaymentMethod;
+  changeFor: string;
+  notes: string;
+  items: SavedOrderLine[];
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  history: OrderHistoryEntry[];
+}

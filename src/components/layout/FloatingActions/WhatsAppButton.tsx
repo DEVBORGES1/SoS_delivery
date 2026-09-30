@@ -1,15 +1,17 @@
 import { MessageCircle } from 'lucide-react';
 import { useCart } from '../../../hooks/useCart';
+import { useStoreSettings } from '../../../hooks/useStoreSettings';
 import { getDirectChatUrl } from '../../../services/whatsappService';
 import { cn } from '../../../utils/cn';
 
 /** Botão flutuante verde. No mobile sobe quando a barra do carrinho aparece. */
 export function WhatsAppButton() {
   const { itemCount } = useCart();
+  const { whatsapp } = useStoreSettings();
 
   return (
     <a
-      href={getDirectChatUrl()}
+      href={getDirectChatUrl(whatsapp)}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Faça seu pedido pelo WhatsApp"

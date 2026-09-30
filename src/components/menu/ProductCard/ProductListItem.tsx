@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import { cn } from '../../../utils/cn';
-import { formatCurrency } from '../../../utils/currency';
 import { Badge } from '../../ui/Badge/Badge';
+import { ProductPrice } from '../ProductPrice/ProductPrice';
 import { STRETCHED_BUTTON, type ProductItemProps } from './ProductCard';
 import { ProductImage } from './ProductImage';
 
@@ -33,7 +33,9 @@ export function ProductListItem({ product, onOpen, onQuickAdd }: ProductItemProp
           </button>
         </h3>
         <p className="line-clamp-2 text-[13.5px] leading-[1.4] text-muted">{product.description}</p>
-        <span className="mt-auto pt-1 text-[17px] font-extrabold">{formatCurrency(product.price)}</span>
+        <span className="mt-auto pt-1">
+          <ProductPrice product={product} className="text-[17px] font-extrabold" />
+        </span>
       </div>
 
       <div className="relative size-[118px] overflow-hidden rounded-control bg-placeholder">

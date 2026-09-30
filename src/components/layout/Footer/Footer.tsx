@@ -4,6 +4,7 @@ import { storeConfig } from '../../../data/storeConfig';
 import { useStoreSettings } from '../../../hooks/useStoreSettings';
 import { getDirectChatUrl } from '../../../services/whatsappService';
 import { cn } from '../../../utils/cn';
+import { formatWhatsappDisplay } from '../../../utils/formatters';
 import { formatHoursShort, isClosedAllDay } from '../../../utils/storeHours';
 import { LogoMark } from '../../ui/Logo/Logo';
 import { SectionLink } from '../SectionLink';
@@ -13,7 +14,7 @@ const COLUMN_TITLE = 'mb-3 text-xs font-extrabold tracking-[.18em] text-footer-m
 const CURRENT_YEAR = new Date().getFullYear();
 
 export function Footer() {
-  const { openingHours } = useStoreSettings();
+  const { openingHours, whatsapp } = useStoreSettings();
 
   /** Dias abertos primeiro; dias fechados no fim, esmaecidos. */
   const footerHours = useMemo(
@@ -51,8 +52,8 @@ export function Footer() {
             <a href={storeConfig.instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:opacity-85">
               Instagram · {storeConfig.instagram}
             </a>
-            <a href={getDirectChatUrl()} target="_blank" rel="noopener noreferrer" className="hover:opacity-85">
-              WhatsApp · {storeConfig.whatsappDisplay}
+            <a href={getDirectChatUrl(whatsapp)} target="_blank" rel="noopener noreferrer" className="hover:opacity-85">
+              WhatsApp · {formatWhatsappDisplay(whatsapp)}
             </a>
             <span className="text-footer-muted">
               {storeConfig.address} — {storeConfig.district}, {storeConfig.city}/{storeConfig.state}

@@ -24,12 +24,17 @@ Não há pagamento online: o pedido é enviado como mensagem formatada via `http
 
 ## Painel da loja (`/admin`)
 
-Em `/admin`, com e-mail e senha, a loja altera sem mexer no código:
+Em `/admin`, com e-mail e senha, a loja cuida de tudo sem mexer no código:
 
-- **Loja e horários:** abrir/fechar na hora (folga, feriado), horário de cada dia, entrega/retirada, taxa e tempos.
-- **Cardápio:** preço, descrição, selo, foto, adicionais, disponível/esgotado, ordem dos itens, novos itens e exclusão.
+- **Pedidos:** cada pedido feito no site aparece na hora (com bipe). Etapas Recebido → Aceito → Preparando → Saiu/Pronto → Concluído; cada botão abre o WhatsApp do cliente com a mensagem pronta. Dá para recusar ou cancelar avisando o cliente.
+- **Visão geral:** abrir/fechar a loja na hora (ou automático pelo horário), contadores e o aviso em faixa amarela no topo do site.
+- **Cardápio:** busca, filtro por categoria, preço editável direto na lista, disponível/esgotado, e edição completa (foto enviada do celular, selo, adicionais, destaque na capa, prévia do card).
+- **Promoções:** desconto em % ou preço final, com validade; no site o preço normal aparece riscado.
+- **Loja:** taxa de entrega, WhatsApp que recebe os pedidos, horário de cada dia, entrega/retirada e tempos.
 
-Os dados ficam no Supabase. O site lê o banco uma vez por visita; se o banco não responder em 5 s, usa os dados do código.
+Os dados ficam no Supabase. O site lê o banco uma vez por visita; se o banco não responder em 5 s, usa os dados do código. O pedido sempre vai para o WhatsApp da loja, mesmo que o banco esteja fora do ar (nesse caso ele só não aparece no painel).
+
+> Sempre que `supabase/schema.sql` mudar, rode o arquivo inteiro de novo no SQL Editor — ele é seguro para rodar várias vezes e não apaga dados.
 
 ### Configurar o Supabase (uma vez)
 
