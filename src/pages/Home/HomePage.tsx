@@ -4,6 +4,7 @@ import { InstagramSection } from '../../components/home/InstagramSection/Instagr
 import { Location } from '../../components/home/Location/Location';
 import { MenuSection } from '../../components/menu/MenuSection/MenuSection';
 import { WhatsAppButton } from '../../components/layout/FloatingActions/WhatsAppButton';
+import { StoreStructuredData } from '../../components/seo/StoreStructuredData';
 import { MobileCartBar } from '../../components/layout/FloatingActions/MobileCartBar';
 import { useCatalog } from '../../hooks/useCatalog';
 import { useScrollToHash } from '../../hooks/useScrollToHash';
@@ -16,6 +17,7 @@ export function HomePage() {
 
   return (
     <>
+      <StoreStructuredData />
       <Hero featuredProduct={featuredProduct} />
       <MenuSection products={products} categories={categories} />
       <About />

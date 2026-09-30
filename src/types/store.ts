@@ -39,6 +39,10 @@ export interface StoreInfo {
   mapsUrl: string;
   /** Endereço do mapa incorporado (Google Maps → Compartilhar → Incorporar um mapa). */
   mapsEmbedUrl: string;
+  /** Coordenadas da loja (dados estruturados para o Google). */
+  geo: { latitude: number; longitude: number };
+  /** Endereço público do site, com barra no final. */
+  siteUrl: string;
 }
 
 /** Configurações que o painel `/admin` altera (tabela `store_settings`). */

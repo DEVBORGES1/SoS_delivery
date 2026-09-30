@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /pedido-enviado
+
+Sitemap: https://so-s-delivery.vercel.app/sitemap.xml

@@ -1,6 +1,7 @@
 import { CheckoutForm } from '../../components/checkout/CheckoutForm/CheckoutForm';
 import { OrderSummary } from '../../components/checkout/OrderSummary/OrderSummary';
 import { OrderSummaryAccordion } from '../../components/checkout/OrderSummary/OrderSummaryAccordion';
+import { ReturningCustomer } from '../../components/checkout/ReturningCustomer/ReturningCustomer';
 import { SendErrorAlert, SubmitOrderButton } from '../../components/checkout/SubmitOrder/SubmitOrder';
 import { SectionLink } from '../../components/layout/SectionLink';
 import { storeConfig } from '../../data/storeConfig';
@@ -32,6 +33,9 @@ export function CheckoutPage() {
         <div className="mt-7 grid grid-cols-1 items-start gap-[clamp(20px,3vw,40px)] lg:grid-cols-[minmax(0,1fr)_400px]">
           <div className="flex min-w-0 flex-col gap-4">
             <OrderSummaryAccordion {...summary} />
+            {checkout.returningName && (
+              <ReturningCustomer firstName={checkout.returningName} onForget={checkout.forgetCustomer} />
+            )}
             <CheckoutForm form={checkout.form} errors={checkout.errors} setField={checkout.setField} />
             {checkout.hasSendError && <SendErrorAlert />}
 

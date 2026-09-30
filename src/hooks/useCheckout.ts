@@ -6,6 +6,7 @@ import { getOrderUrl, reserveWhatsAppTab } from '../services/whatsappService';
 import type { CheckoutErrors, CheckoutField, CheckoutFormData, OrderConfirmation } from '../types/order';
 import { createOrder } from '../utils/order';
 import { calculateOrderTotals } from '../utils/pricing';
+import { clearSavedCustomer, loadSavedCustomer, saveCustomer } from '../utils/savedCustomer';
 import { validateCheckout } from '../utils/validation';
 import { useCart } from './useCart';
 import { useCatalog } from './useCatalog';
@@ -53,7 +54,10 @@ export function useCheckout() {
   const { isOpen, nextOpenDay, nextOpenTime } = useStoreStatus();
   const { deliveryEnabled, pickupEnabled, deliveryFee } = useStoreSettings();
 
-  const [form, setForm] = useState(INITIAL_FORM);
+  // Cliente que já pediu neste aparelho começa com os dados do último pedido.
+  const [savedCustomer] = useState(loadSavedCustomer);
+  const [form, setForm] = useState<CheckoutFormData>(() => ({ ...INITIAL_FORM, ...savedCustomer }));
+  const [returningName, setReturningName] = useState(savedCustomer?.name.trim().split(/\s+/)[0] ?? null);
 
   // Se a loja desativar entrega (ou retirada) no painel, troca para a opção disponível.
   const orderType =
@@ -71,6 +75,15 @@ export function useCheckout() {
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
     setHasSendError(false);
+  }, []);
+
+  /** "Não é você?": apaga os dados lembrados e esvazia o formulário. */
+  const forgetCustomer = useCallback(() => {
+    clearSavedCustomer();
+    setForm(INITIAL_FORM);
+    setErrors({});
+    setReturningName(null);
+    focusField('name');
   }, []);
 
   const totals = calculateOrderTotals(items, orderType, deliveryFee);
@@ -94,6 +107,7 @@ export function useCheckout() {
     }
 
     setIsSending(true);
+    saveCustomer(currentForm);
     const draft = createOrder(currentForm, items, categories, deliveryFee);
     // Salva no painel para usar o número oficial; se o banco falhar, segue com o número provisório.
     const savedId = await saveOrder(draft);
@@ -121,6 +135,8 @@ export function useCheckout() {
     totals,
     hasSendError,
     submit,
+    returningName,
+    forgetCustomer,
     submitDisabled: !isOpen || isEmpty || isSending,
     submitLabel: getSubmitLabel(isOpen, isEmpty, hasSendError, isSending, `${nextOpenDay} ${nextOpenTime}`),
   };
