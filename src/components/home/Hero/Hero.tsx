@@ -6,16 +6,27 @@ import type { Product } from '../../../types/product';
 import { formatCurrency } from '../../../utils/currency';
 import { SectionLink } from '../../layout/SectionLink';
 import { buttonClasses } from '../../ui/Button/buttonStyles';
+import { ImagePlaceholder } from '../../ui/ImagePlaceholder/ImagePlaceholder';
 import { StatusDot } from '../../ui/StatusDot/StatusDot';
 
 interface HeroProps {
-  /** Produto em destaque exibido no card flutuante sobre a foto. */
+  /** Produto em destaque: define a foto da capa e o card flutuante sobre ela. */
   featuredProduct?: Product;
+}
+
+/** Foto da capa. O Combate Duplo (e a capa sem destaque) usa o recorte próprio da capa. */
+function getHeroPhoto(product?: Product): { src?: string; position?: string } {
+  if (!product || (product.imageKey === 'combate-duplo' && !product.imageUrl)) {
+    return { src: heroImage, position: '50% 60%' };
+  }
+  return { src: product.image, position: product.imagePosition };
 }
 
 export function Hero({ featuredProduct }: HeroProps) {
   const { isOpen, labels } = useStoreStatus();
   const openProduct = useUIStore((state) => state.openProduct);
+  const photo = getHeroPhoto(featuredProduct);
+  const photoLabel = featuredProduct?.name ?? 'Hambúrguer artesanal';
 
   return (
     <section
@@ -60,14 +71,19 @@ export function Hero({ featuredProduct }: HeroProps) {
         <div className="relative pt-[18px] pl-[18px]">
           <div aria-hidden="true" className="absolute inset-[0_18px_18px_0] -rotate-[2.5deg] rounded-[28px] bg-accent" />
           <div className="relative aspect-[1/0.92] overflow-hidden rounded-[28px] bg-[#1a120c]">
-            <img
-              src={heroImage}
-              alt="Combate Duplo: dois blends, queijo coalho e maionese"
-              width={620}
-              height={530}
-              fetchPriority="high"
-              className="size-full object-cover object-[50%_60%]"
-            />
+            {photo.src ? (
+              <img
+                src={photo.src}
+                alt={photoLabel}
+                width={620}
+                height={530}
+                fetchPriority="high"
+                style={{ objectPosition: photo.position }}
+                className="size-full object-cover"
+              />
+            ) : (
+              <ImagePlaceholder label={`foto · ${photoLabel}`} />
+            )}
           </div>
           <div
             aria-hidden="true"

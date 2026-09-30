@@ -323,7 +323,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
           <div className="flex items-center justify-between gap-3 rounded-xl bg-(--adm-faint) px-4 py-3.5">
             <div>
               <div className="font-bold">Destaque na capa</div>
-              <div className={cn('text-[13px]', MUTED)}>Aparece no card sobre a foto principal do site.</div>
+              <div className={cn('text-[13px]', MUTED)}>Vira a foto principal do site. Só um lanche fica em destaque por vez.</div>
             </div>
             <Switch
               label="Destaque na capa"

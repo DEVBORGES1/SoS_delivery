@@ -188,8 +188,18 @@ export function useAdminData() {
       const sortOrder =
         existing?.sortOrder ?? Math.min(0, ...products.map((item) => item.sortOrder ?? 0)) - 1;
       const next = { ...product, sortOrder };
-      const ok = await run(() => client.from('products').upsert(productToRow(next, sortOrder)), successText);
-      if (ok) setProducts((current) => (existing ? current.map((item) => (item.id === next.id ? next : item)) : [next, ...current]));
+      const ok = await run(async () => {
+        const saved = await client.from('products').upsert(productToRow(next, sortOrder));
+        if (saved.error || !next.featured) return saved;
+        // A capa mostra um lanche só: o novo destaque tira o dos outros.
+        return client.from('products').update({ featured: false }).eq('featured', true).neq('id', next.id);
+      }, successText);
+      if (ok) {
+        setProducts((current) => {
+          const others = next.featured ? current.map((item) => (item.featured ? { ...item, featured: false } : item)) : current;
+          return existing ? others.map((item) => (item.id === next.id ? next : item)) : [next, ...others];
+        });
+      }
       return ok;
     },
     [products, run],
