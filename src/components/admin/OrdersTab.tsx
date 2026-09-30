@@ -290,14 +290,18 @@ interface OrdersTabProps {
   data: AdminData;
   filter: OrderFilter;
   onFilter: (filter: OrderFilter) => void;
+  /** Pedido aberto (fica no painel para o alerta "Ver pedido" conseguir abrir). */
+  selectedId: number | null;
+  onSelect: (id: number | null) => void;
+  /** Pedidos novos que o lojista ainda não abriu: ganham o destaque de "novo". */
+  unseenIds: Set<number>;
 }
 
 export type { OrderFilter };
 
-export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
+export function OrdersTab({ data, filter, onFilter, selectedId, onSelect, unseenIds }: OrdersTabProps) {
   const wide = useMediaQuery('(min-width: 1180px)');
   const now = useNow();
-  const [selectedId, setSelectedId] = useState<number | null>(null);
   const { orders } = data;
 
   const match = FILTERS.find((item) => item.id === filter)?.match ?? (() => true);
@@ -331,7 +335,7 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
         value={filter}
         onChange={(id) => {
           onFilter(id);
-          setSelectedId(null);
+          onSelect(null);
           setConfirmClear(false);
         }}
         options={FILTERS.map(({ id, label, match: test }) => ({ id, label, count: orders.filter(test).length }))}
@@ -359,20 +363,22 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
         <div className="flex min-w-0 flex-col gap-2.5">
           {list.map((order) => {
             const isSelected = selected?.id === order.id;
+            const unseen = unseenIds.has(order.id);
             return (
               <button
                 key={order.id}
                 type="button"
-                onClick={() => setSelectedId(order.id)}
+                onClick={() => onSelect(order.id)}
                 className={cn(
-                  'flex w-full cursor-pointer flex-col gap-1.5 rounded-2xl border-2 bg-(--adm-card) px-[18px] py-4 text-left text-(--adm-ink) transition-colors duration-200 hover:border-(--adm-ink)',
+                  'flex w-full cursor-pointer flex-col gap-1.5 rounded-2xl border-2 px-[18px] py-4 text-left text-(--adm-ink) transition-colors duration-200 hover:border-(--adm-ink)',
+                  unseen ? 'bg-(--adm-new-bg) motion-safe:animate-order-in' : 'bg-(--adm-card)',
                   isSelected ? 'border-(--adm-ink)' : order.status === 'novo' ? 'border-(--adm-new-border)' : 'border-(--adm-line)',
                 )}
               >
                 <div className="flex items-center justify-between gap-2.5">
                   <span className="flex items-center gap-2">
                     <span className="text-[17px] font-extrabold">#{order.id}</span>
-                    {order.status === 'novo' && (
+                    {unseen && (
                       <span className="rounded-[5px] bg-(--adm-accent) px-[7px] py-0.5 text-[11px] font-extrabold tracking-[.04em] text-white">
                         NOVO
                       </span>
@@ -408,10 +414,10 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
             saving={data.saving}
             narrow={!wide}
             now={now}
-            onClose={() => setSelectedId(null)}
+            onClose={() => onSelect(null)}
             onStatus={data.setOrderStatus}
             onDelete={() => {
-              setSelectedId(null);
+              onSelect(null);
               void data.deleteOrders([selected.id], `Pedido #${selected.id} excluído`);
             }}
           />

@@ -90,6 +90,7 @@
 
   --animate-status-pulse: status-pulse 1.6s ease-out infinite;
   --animate-price-pop: price-pop 0.45s var(--ease-spring);
+  --animate-order-in: order-in 0.4s var(--ease-smooth);
 
   @keyframes status-pulse {
     0% {
@@ -103,6 +104,14 @@
   @keyframes price-pop {
     40% {
       transform: scale(1.12);
+    }
+  }
+
+  /* Entrada do alerta e do cartão de pedido novo no painel. */
+  @keyframes order-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
     }
   }
 }
@@ -184,6 +193,7 @@
   --adm-switch-off: #cfc4b4;
   --adm-seg-on: #ffffff;
   --adm-new-border: #f0b3ab;
+  --adm-new-bg: #fff4f2;
   --adm-header: rgb(244 239 231 / 0.92);
   --adm-overlay: rgb(28 22 17 / 0.45);
   --adm-chrome: #1c1611;
@@ -222,6 +232,7 @@
   --adm-switch-off: #4a423b;
   --adm-seg-on: #3a312a;
   --adm-new-border: rgb(224 48 31 / 0.55);
+  --adm-new-bg: rgb(224 48 31 / 0.08);
   --adm-header: rgb(12 10 9 / 0.85);
   --adm-overlay: rgb(0 0 0 / 0.62);
   --adm-chrome: #080605;

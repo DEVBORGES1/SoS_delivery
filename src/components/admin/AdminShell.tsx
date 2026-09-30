@@ -6,6 +6,7 @@ import { ThemeToggle } from '../layout/ThemeToggle/ThemeToggle';
 import type { StoreStatusOverride } from '../../types/store';
 import { cn } from '../../utils/cn';
 import { TABS, type AdminTab } from './adminTabs';
+import { SoundStatusButton } from './SoundControls';
 import type { Toast } from './useAdminData';
 import { useStoreStatusText } from './useStoreStatusText';
 
@@ -176,6 +177,7 @@ export function AdminShell({
                 <span className="size-[7px] rounded-full bg-[#178a45]" />
                 {savedLabel}
               </span>
+              <SoundStatusButton />
               <ThemeToggle className="min-[960px]:hidden" />
               <Link
                 to={ROUTES.home}

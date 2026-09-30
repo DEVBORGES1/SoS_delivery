@@ -1,9 +1,10 @@
 import type { Session } from '@supabase/supabase-js';
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { AdminShell } from '../../components/admin/AdminShell';
 import type { AdminTab } from '../../components/admin/adminTabs';
 import { BTN_PRIMARY, Field, INPUT } from '../../components/admin/adminUi';
 import { MenuTab } from '../../components/admin/MenuTab';
+import { NewOrderAlert } from '../../components/admin/NewOrderAlert';
 import { ThemeToggle } from '../../components/layout/ThemeToggle/ThemeToggle';
 import { OrdersTab, type OrderFilter } from '../../components/admin/OrdersTab';
 import { OverviewTab } from '../../components/admin/OverviewTab';
@@ -11,6 +12,7 @@ import { ProductDrawer } from '../../components/admin/ProductDrawer';
 import { PromotionDrawer, PromotionsTab } from '../../components/admin/PromotionsTab';
 import { StoreTab } from '../../components/admin/StoreTab';
 import { useAdminData } from '../../components/admin/useAdminData';
+import { useOrderAlerts } from '../../components/admin/useOrderAlerts';
 import { describeError, supabase } from '../../services/supabaseClient';
 import type { Product, Promotion } from '../../types/product';
 import { cn } from '../../utils/cn';
@@ -103,11 +105,26 @@ function Dashboard() {
   const [tab, setTab] = useState<AdminTab>('orders');
   const [orderFilter, setOrderFilter] = useState<OrderFilter>('ativos');
   const [editing, setEditing] = useState<Editing>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const go = (next: AdminTab, options?: { orderFilter?: OrderFilter }) => {
     if (options?.orderFilter) setOrderFilter(options.orderFilter);
     setTab(next);
     window.scrollTo(0, 0);
+  };
+
+  // "Ver pedido" (alerta na tela ou aviso do navegador): vai para a lista e abre o pedido.
+  const showOrder = useCallback((id: number) => {
+    setEditing(null);
+    setOrderFilter('ativos');
+    setSelectedOrderId(id);
+    setTab('orders');
+    window.scrollTo(0, 0);
+  }, []);
+  const alerts = useOrderAlerts(data.orders, showOrder);
+  const selectOrder = (id: number | null) => {
+    if (id !== null) alerts.markSeen(id);
+    setSelectedOrderId(id);
   };
   const newProduct = (category?: string) => setEditing({ kind: 'product', product: null, category });
   const newPromotion = () => setEditing({ kind: 'promotion', promotion: null });
@@ -124,7 +141,16 @@ function Dashboard() {
       toast={data.toast}
       onSignOut={signOut}
     >
-      {tab === 'orders' && <OrdersTab data={data} filter={orderFilter} onFilter={setOrderFilter} />}
+      {tab === 'orders' && (
+        <OrdersTab
+          data={data}
+          filter={orderFilter}
+          onFilter={setOrderFilter}
+          selectedId={selectedOrderId}
+          onSelect={selectOrder}
+          unseenIds={alerts.unseenIds}
+        />
+      )}
       {tab === 'overview' && (
         <OverviewTab data={data} onGo={go} onNewProduct={() => newProduct()} onNewPromotion={newPromotion} />
       )}
@@ -157,6 +183,8 @@ function Dashboard() {
           onClose={() => setEditing(null)}
         />
       )}
+
+      <NewOrderAlert orders={alerts.unseenOrders} onOpen={alerts.open} onDismiss={alerts.markSeen} />
     </AdminShell>
   );
 }

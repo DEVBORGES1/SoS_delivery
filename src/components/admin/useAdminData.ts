@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { defaultStoreSettings } from '../../data/storeConfig';
 import { describeError, supabase } from '../../services/supabaseClient';
 import {
@@ -18,6 +18,7 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import type { AdminOrder, OrderStatus } from '../../types/order';
 import type { Product, Promotion } from '../../types/product';
 import type { StoreSettings } from '../../types/store';
+import { useOrderAlertStore } from './useOrderAlerts';
 
 export interface Toast {
   id: number;
@@ -34,23 +35,6 @@ function sortOrders(orders: AdminOrder[]): AdminOrder[] {
   return [...orders].sort((a, b) => b.createdAt - a.createdAt);
 }
 
-/** Bipe curto para pedido novo (só toca depois de alguma interação com a página). */
-function playNewOrderBeep() {
-  try {
-    const context = new AudioContext();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.frequency.value = 880;
-    gain.gain.setValueAtTime(0.2, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.6);
-    oscillator.connect(gain).connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.6);
-  } catch {
-    // Sem áudio disponível: o contador na aba já avisa.
-  }
-}
-
 /**
  * Estado do painel: cardápio, promoções, configurações e pedidos, com as
  * funções que gravam no Supabase e o aviso ("toast") de cada ação.
@@ -64,7 +48,6 @@ export function useAdminData() {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
-  const knownOrderIds = useRef<Set<number> | null>(null);
 
   const notify = useCallback((text: string, tone: Toast['tone'] = 'success') => {
     setToast({ id: Date.now(), text, tone });
@@ -77,9 +60,8 @@ export function useAdminData() {
   }, []);
 
   const receiveOrders = useCallback((next: AdminOrder[]) => {
-    const known = knownOrderIds.current;
-    if (known && next.some((order) => order.status === 'novo' && !known.has(order.id))) playNewOrderBeep();
-    knownOrderIds.current = new Set(next.map((order) => order.id));
+    // Detecta os pedidos que acabaram de chegar e dispara o alerta.
+    useOrderAlertStore.getState().ingest(next);
     setOrders(sortOrders(next));
   }, []);
 
