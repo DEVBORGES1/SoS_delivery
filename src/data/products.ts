@@ -28,6 +28,7 @@ export const products: Product[] = [
     badge: 'Duplo',
     available: false,
     featured: true,
+    coverSticker: 'Blend na brasa',
   },
   {
     id: 'sos-bravo',

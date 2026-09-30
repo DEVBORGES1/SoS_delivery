@@ -13,6 +13,7 @@ import type { AdminData } from './useAdminData';
 
 const BADGE_SUGGESTIONS = ['Novo', 'Mais pedido', 'Picante', 'Pra dividir'];
 const DESCRIPTION_MAX = 140;
+const COVER_STICKER_MAX = 24;
 
 interface AddonDraft {
   id: string;
@@ -117,6 +118,7 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
       name: draft.name.trim(),
       description: draft.description.trim(),
       badge: draft.badge?.trim() || undefined,
+      coverSticker: draft.coverSticker?.trim() ?? '',
       price: parsedPrice,
       image,
       addons: parsedAddons.length ? parsedAddons : undefined,
@@ -331,6 +333,22 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
               onChange={(value) => update('featured', value)}
             />
           </div>
+          {draft.featured && (
+            <Field
+              id="e-cover-sticker"
+              label={<>Selo da capa <span className={cn('font-medium', MUTED)}>(opcional)</span></>}
+              hint="Círculo amarelo sobre a foto principal. Deixe vazio para não mostrar."
+            >
+              <input
+                id="e-cover-sticker"
+                value={draft.coverSticker ?? ''}
+                maxLength={COVER_STICKER_MAX}
+                placeholder="Ex.: Blend na brasa"
+                onChange={(event) => update('coverSticker', event.target.value)}
+                className={INPUT}
+              />
+            </Field>
+          )}
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-3">

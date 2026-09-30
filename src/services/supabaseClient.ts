@@ -18,5 +18,8 @@ export function describeError(error: unknown): string {
   if (/email not confirmed/i.test(message)) return 'E-mail ainda não confirmado no Supabase.';
   if (/row-level security|permission denied/i.test(message)) return 'Sem permissão: este usuário não é administrador.';
   if (/failed to fetch|network/i.test(message)) return 'Sem conexão com o Supabase. Verifique a internet.';
+  if (/could not find the .* column/i.test(message)) {
+    return 'Banco desatualizado: rode o supabase/schema.sql de novo no SQL Editor do Supabase.';
+  }
   return message || 'Erro inesperado.';
 }

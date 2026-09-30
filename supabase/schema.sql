@@ -138,6 +138,10 @@ alter table public.store_settings
 -- URL da foto enviada pelo painel (Storage); tem prioridade sobre image_key
 alter table public.products add column if not exists image_url text;
 
+-- Selo redondo sobre a foto da capa (lanche em destaque); '' = sem selo
+alter table public.products
+  add column if not exists cover_sticker text check (length(cover_sticker) <= 24);
+
 -- Promoções -------------------------------------------------------------------------
 create table if not exists public.promotions (
   id uuid primary key default gen_random_uuid(),
@@ -348,3 +352,7 @@ values
    'Tiras de frango empanadas e batata frita crocante.',
    0, 'resgate-supremo', '50% 72%', null, false, false, 9)
 on conflict (id) do nothing;
+
+-- Selo que a capa já mostrava, para o lanche em destaque que ainda não tem um
+-- (quem apagou o selo pelo painel fica com '' e não é afetado).
+update public.products set cover_sticker = 'Blend na brasa' where featured and cover_sticker is null;

@@ -3,6 +3,7 @@ import heroImage from '../../../assets/images/combate-duplo-hero.webp';
 import { useStoreStatus } from '../../../hooks/useStoreStatus';
 import { useUIStore } from '../../../stores/uiStore';
 import type { Product } from '../../../types/product';
+import { cn } from '../../../utils/cn';
 import { formatCurrency } from '../../../utils/currency';
 import { SectionLink } from '../../layout/SectionLink';
 import { buttonClasses } from '../../ui/Button/buttonStyles';
@@ -27,6 +28,8 @@ export function Hero({ featuredProduct }: HeroProps) {
   const openProduct = useUIStore((state) => state.openProduct);
   const photo = getHeroPhoto(featuredProduct);
   const photoLabel = featuredProduct?.name ?? 'Hambúrguer artesanal';
+  // Selo definido no painel para o lanche em destaque; sem destaque, o selo padrão da capa.
+  const sticker = featuredProduct ? featuredProduct.coverSticker?.trim() : 'Blend na brasa';
 
   return (
     <section
@@ -85,16 +88,25 @@ export function Hero({ featuredProduct }: HeroProps) {
               <ImagePlaceholder label={`foto · ${photoLabel}`} />
             )}
           </div>
-          <div
-            aria-hidden="true"
-            className="absolute top-0 right-[4%] grid aspect-square w-[clamp(96px,11vw,128px)] rotate-10 place-items-center rounded-full bg-mustard text-center text-mustard-ink shadow-sticker"
-          >
-            <span className="font-display text-[clamp(17px,2vw,22px)] leading-none">
-              BLEND
-              <br />
-              NA BRASA
-            </span>
-          </div>
+          {sticker && (
+            <div
+              aria-hidden="true"
+              className="absolute top-0 right-[4%] grid aspect-square w-[clamp(96px,11vw,128px)] rotate-10 place-items-center rounded-full bg-mustard p-3 text-center text-mustard-ink shadow-sticker"
+            >
+              <span
+                className={cn(
+                  'font-display leading-none text-balance wrap-anywhere uppercase',
+                  sticker.length <= 14
+                    ? 'text-[clamp(17px,2vw,22px)]'
+                    : sticker.length <= 19
+                      ? 'text-[clamp(14px,1.6vw,18px)]'
+                      : 'text-[clamp(12px,1.35vw,15px)]',
+                )}
+              >
+                {sticker}
+              </span>
+            </div>
+          )}
           {featuredProduct && (
             <button
               type="button"

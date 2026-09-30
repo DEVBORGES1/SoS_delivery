@@ -29,6 +29,8 @@ export interface Product {
   /** Preço normal, riscado no site quando há promoção ativa (`price` já é o promocional). */
   compareAtPrice?: number;
   featured?: boolean;
+  /** Texto do selo redondo sobre a foto da capa quando o lanche está em destaque. Vazio = sem selo. */
+  coverSticker?: string;
   /** Selo amarelo exibido sobre o produto (ex.: "Mais pedido"). */
   badge?: string;
   /** Posição no cardápio (menor aparece primeiro). */

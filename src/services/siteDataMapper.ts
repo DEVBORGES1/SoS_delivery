@@ -16,6 +16,8 @@ export interface ProductRow {
   badge: string | null;
   available: boolean;
   featured: boolean;
+  /** Ausente enquanto o schema.sql atualizado não foi rodado. */
+  cover_sticker?: string | null;
   addons: Addon[] | null;
   sort_order: number;
 }
@@ -101,6 +103,7 @@ export function productFromRow(row: ProductRow): Product {
     badge: row.badge || undefined,
     available: row.available,
     featured: row.featured,
+    coverSticker: row.cover_sticker ?? undefined,
     addons: addons.length ? addons : undefined,
     sortOrder: row.sort_order,
   };
@@ -119,6 +122,7 @@ export function productToRow(product: Product, sortOrder: number): ProductRow {
     badge: product.badge?.trim() || null,
     available: product.available,
     featured: product.featured ?? false,
+    cover_sticker: product.coverSticker?.trim() ?? '',
     addons: product.addons ?? [],
     sort_order: sortOrder,
   };
