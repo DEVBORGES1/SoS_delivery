@@ -1,7 +1,7 @@
 import brigadaDaFome from '../../../assets/images/brigada-da-fome.webp';
 import resgateSupremo from '../../../assets/images/resgate-supremo.webp';
 import { aboutStats } from '../../../data/homeContent';
-import { ImagePlaceholder } from '../../ui/ImagePlaceholder/ImagePlaceholder';
+import { FeedbackCarousel } from './FeedbackCarousel';
 
 export function About() {
   return (
@@ -12,9 +12,7 @@ export function About() {
     >
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-center gap-[clamp(32px,5vw,72px)]">
         <div className="grid grid-cols-[1.25fr_1fr] grid-rows-[auto_auto] gap-3.5">
-          <div className="row-span-2 min-h-[clamp(300px,36vw,460px)] overflow-hidden rounded-card">
-            <ImagePlaceholder label="foto · equipe na chapa" />
-          </div>
+          <FeedbackCarousel className="row-span-2 min-h-[clamp(300px,36vw,460px)]" />
           <div className="aspect-square overflow-hidden rounded-card">
             <img
               src={brigadaDaFome}
