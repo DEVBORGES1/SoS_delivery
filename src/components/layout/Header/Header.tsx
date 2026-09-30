@@ -9,6 +9,7 @@ import { LogoMark } from '../../ui/Logo/Logo';
 import { StatusDot } from '../../ui/StatusDot/StatusDot';
 import { MobileMenu } from '../MobileNavigation/MobileMenu';
 import { SectionLink } from '../SectionLink';
+import { ThemeToggle } from '../ThemeToggle/ThemeToggle';
 import { CartButton } from './CartButton';
 
 export function Header() {
@@ -48,6 +49,7 @@ export function Header() {
             <StatusDot isOpen={isOpen} />
             {labels.short}
           </span>
+          <ThemeToggle />
           <CartButton />
           <SectionLink
             sectionId="cardapio"

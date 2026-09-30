@@ -71,6 +71,7 @@ O agendamento só roda a partir da branch `main`. O GitHub desativa agendamentos
 | Textos da home (navegação, números, grade do Instagram) | `src/data/homeContent.ts` |
 | Formato da mensagem do WhatsApp | `src/utils/orderMessage.ts` |
 | Cores, fontes, raios, sombras (design tokens) | `src/index.css` (`@theme`) |
+| Cores do tema escuro e animação da troca de tema | `src/index.css` (`data-theme='dark'`) e `src/theme/theme.ts` |
 
 ## Estrutura
 

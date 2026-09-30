@@ -107,6 +107,86 @@
   }
 }
 
+/* ── Tema escuro (inspirado no portfólio devborges.vercel.app) ───────
+   Fundo quase preto com um toque de marrom, cartões levemente mais claros,
+   bordas translúcidas e o vermelho da marca com brilho. Ativado por
+   data-theme="dark" no <html> (script em index.html + ThemeToggle). */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0c0a09;
+  --color-bg-alt: #110e0c;
+  --color-surface: #17130f;
+  --color-surface-alt: #211b16;
+  --color-field: #120f0c;
+  --color-ink: #f5efe6;
+  --color-muted: #a8a09a;
+  --color-line: rgb(255 255 255 / 0.1);
+  --color-header: rgb(12 10 9 / 0.82);
+  --color-overlay: rgb(0 0 0 / 0.66);
+  --color-placeholder: #1c1713;
+  --color-placeholder-line: rgb(255 255 255 / 0.035);
+
+  --color-accent: #e0301f;
+  --color-accent-deep: #7f180e;
+  --color-disabled: #4a423b;
+  --color-danger: #f87171;
+  --color-danger-line: #f87171;
+  --color-success-ink: #4ade80;
+
+  --color-footer: #070605;
+
+  --shadow-card-hover: 0 24px 48px -20px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(224 48 31 / 0.35);
+  --shadow-float: 0 18px 40px -16px rgb(0 0 0 / 0.85);
+  --shadow-dialog: 0 30px 80px -20px rgb(0 0 0 / 0.9);
+  --shadow-drawer: -20px 0 60px -20px rgb(0 0 0 / 0.9);
+  --shadow-bar: 0 14px 32px -10px rgb(0 0 0 / 0.9);
+  --shadow-toast: 0 16px 40px -12px rgb(0 0 0 / 0.9);
+}
+
+/* Brilho vermelho nos textos de destaque, como no portfólio. */
+:root[data-theme='dark'] .text-accent {
+  text-shadow: 0 0 18px rgb(239 68 68 / 0.35);
+}
+
+:root[data-theme='dark'] footer {
+  border-top: 1px solid var(--color-line);
+}
+
+:root[data-theme='dark'] ::placeholder {
+  color: #7d736a;
+}
+
+/* ── Animação da troca de tema ────────────────────────────────────────
+   O tema novo surge num círculo que cresce a partir do botão clicado
+   (--reveal-x/--reveal-y), igual ao portfólio. Usa a View Transitions API;
+   sem suporte ou com "reduzir movimento", troca na hora. */
+@property --reveal-size {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  mask-image: radial-gradient(circle closest-side, #000 92%, transparent 100%);
+  mask-repeat: no-repeat;
+  mask-size: var(--reveal-size) var(--reveal-size);
+  mask-position: calc(var(--reveal-x, 50vw) - var(--reveal-size) / 2) calc(var(--reveal-y, 50vh) - var(--reveal-size) / 2);
+  animation: theme-reveal 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes theme-reveal {
+  to {
+    --reveal-size: 300vmax;
+  }
+}
+
 /* Faixas diagonais usadas nos espaços reservados para fotos. */
 @utility bg-stripes {
   background-color: var(--color-placeholder);

@@ -9,6 +9,18 @@
       content="Hambúrguer artesanal feito na hora em Videira/SC. Blend da casa, brioche selado na chapa e entrega rápida. Monte seu pedido e finalize pelo WhatsApp."
     />
     <meta name="theme-color" content="#f5eee2" />
+    <script>
+      // Aplica o tema antes da primeira pintura (evita piscar o claro no escuro).
+      // Escolha salva > tema do sistema. O painel /admin fica sempre claro.
+      try {
+        var saved = localStorage.getItem('theme');
+        var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark && location.pathname.indexOf('/admin') !== 0) {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0c0a09');
+        }
+      } catch (e) {}
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="canonical" href="https://so-s-delivery.vercel.app/" />

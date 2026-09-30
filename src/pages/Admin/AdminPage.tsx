@@ -199,6 +199,16 @@ export function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
+  // O painel tem cores próprias e fica sempre no tema claro.
+  useEffect(() => {
+    const root = document.documentElement;
+    const previous = root.dataset.theme;
+    delete root.dataset.theme;
+    return () => {
+      if (previous) root.dataset.theme = previous;
+    };
+  }, []);
+
   useEffect(() => {
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => {
