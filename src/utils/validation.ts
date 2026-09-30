@@ -15,6 +15,7 @@ export function validateCheckout(form: CheckoutFormData): CheckoutErrors {
     if (!form.street.trim()) errors.street = 'Informe a rua';
     if (!form.number.trim()) errors.number = 'Informe o número';
     if (!form.district.trim()) errors.district = 'Informe o bairro';
+    if (!form.reference.trim()) errors.reference = 'Informe um ponto de referência';
   }
 
   return errors;

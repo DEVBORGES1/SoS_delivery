@@ -29,7 +29,7 @@ const ADDRESS_FIELDS: {
   { field: 'number', label: 'Número', placeholder: '123' },
   { field: 'district', label: 'Bairro', placeholder: 'Centro' },
   { field: 'complement', label: 'Complemento', placeholder: 'Apto, bloco…', optional: true, autoComplete: 'address-line2' },
-  { field: 'reference', label: 'Referência', placeholder: 'Perto de…', optional: true },
+  { field: 'reference', label: 'Ponto de referência', placeholder: 'Ex.: perto do mercado, casa azul' },
 ];
 
 export function DeliveryForm({ form, errors, setField }: CheckoutSectionProps) {
