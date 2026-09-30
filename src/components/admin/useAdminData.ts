@@ -106,7 +106,17 @@ export function useAdminData() {
     ]).then(([productsResult, promotionsResult, settingsResult]) => {
       if (!active) return;
       const error = productsResult.error ?? settingsResult.error ?? promotionsResult.error;
-      if (error) setToast({ id: Date.now(), text: describeError(error), tone: 'error' });
+      if (error) {
+        // Tabela ou coluna nova ainda não criada: o schema.sql atualizado não foi rodado.
+        const outdated = /PGRST205|PGRST202|42703|42P01/.test(String((error as { code?: string }).code));
+        setToast({
+          id: Date.now(),
+          text: outdated
+            ? 'Banco desatualizado: rode o supabase/schema.sql de novo no SQL Editor do Supabase.'
+            : describeError(error),
+          tone: 'error',
+        });
+      }
       setProducts(((productsResult.data ?? []) as ProductRow[]).map(productFromRow));
       setPromotions(((promotionsResult.data ?? []) as PromotionRow[]).map(promotionFromRow));
       if (settingsResult.data) applySettings(settingsFromRow(settingsResult.data, defaultStoreSettings));

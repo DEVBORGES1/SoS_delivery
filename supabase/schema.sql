@@ -259,6 +259,9 @@ begin
      ) then
     alter publication supabase_realtime add table public.orders;
   end if;
+exception
+  when insufficient_privilege then
+    raise notice 'Sem permissão para ligar o Realtime por SQL. Ligue em Database → Publications → supabase_realtime → orders (o painel também recarrega os pedidos a cada 30 s).';
 end;
 $$;
 
@@ -267,17 +270,27 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values ('product-images', 'product-images', true, 2097152, array['image/webp', 'image/jpeg', 'image/png'])
 on conflict (id) do nothing;
 
-drop policy if exists "Admins enviam fotos" on storage.objects;
-create policy "Admins enviam fotos" on storage.objects
-  for insert to authenticated with check (bucket_id = 'product-images' and (select public.is_admin()));
+-- As regras das fotos ficam num bloco à parte: se o projeto não permitir criá-las
+-- por aqui, o resto do arquivo é aplicado mesmo assim e aparece um aviso (NOTICE)
+-- explicando como criar pelo painel do Supabase.
+do $$
+begin
+  drop policy if exists "Admins enviam fotos" on storage.objects;
+  create policy "Admins enviam fotos" on storage.objects
+    for insert to authenticated with check (bucket_id = 'product-images' and (select public.is_admin()));
 
-drop policy if exists "Admins alteram fotos" on storage.objects;
-create policy "Admins alteram fotos" on storage.objects
-  for update to authenticated using (bucket_id = 'product-images' and (select public.is_admin()));
+  drop policy if exists "Admins alteram fotos" on storage.objects;
+  create policy "Admins alteram fotos" on storage.objects
+    for update to authenticated using (bucket_id = 'product-images' and (select public.is_admin()));
 
-drop policy if exists "Admins apagam fotos" on storage.objects;
-create policy "Admins apagam fotos" on storage.objects
-  for delete to authenticated using (bucket_id = 'product-images' and (select public.is_admin()));
+  drop policy if exists "Admins apagam fotos" on storage.objects;
+  create policy "Admins apagam fotos" on storage.objects
+    for delete to authenticated using (bucket_id = 'product-images' and (select public.is_admin()));
+exception
+  when insufficient_privilege then
+    raise notice 'Sem permissão para criar as regras das fotos por SQL. Crie em Storage → Policies (bucket product-images): INSERT, UPDATE e DELETE para authenticated com a condição (select public.is_admin()).';
+end;
+$$;
 
 -- Dados iniciais -----------------------------------------------------------------
 insert into public.store_settings (id, weekly_hours)
