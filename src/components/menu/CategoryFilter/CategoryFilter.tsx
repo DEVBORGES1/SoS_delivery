@@ -14,7 +14,10 @@ interface CategoryFilterProps {
   panelId: string;
 }
 
-/** Abas de categoria com rolagem horizontal e navegação pelas setas do teclado. */
+/**
+ * Abas de categoria. Quebram linha em vez de rolar para o lado, para que todas
+ * fiquem à vista no celular. Setas do teclado trocam de aba.
+ */
 export function CategoryFilter({ categories, activeId, onChange, panelId }: CategoryFilterProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +37,7 @@ export function CategoryFilter({ categories, activeId, onChange, panelId }: Cate
       role="tablist"
       aria-label="Categorias"
       onKeyDown={handleKeyDown}
-      className="scrollbar-none mx-[calc(-1*clamp(16px,4vw,40px))] mt-7 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-gutter pt-1 pb-2"
+      className="mt-7 flex flex-wrap gap-2 pt-1 sm:gap-2.5"
     >
       {categories.map((category) => {
         const isActive = category.id === activeId;
@@ -49,7 +52,7 @@ export function CategoryFilter({ categories, activeId, onChange, panelId }: Cate
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(category.id)}
             className={cn(
-              'flex h-12 flex-none snap-start items-center gap-2 rounded-full border-[1.5px] px-5 text-[15px] font-bold transition-[background-color,color,border-color,scale] duration-250 active:scale-96',
+              'flex h-11 flex-none items-center gap-2 rounded-full border-[1.5px] px-4 text-sm font-bold sm:h-12 sm:px-5 sm:text-[15px] transition-[background-color,color,border-color,scale] duration-250 active:scale-96',
               isActive ? 'border-accent bg-accent text-accent-ink' : 'border-line text-ink',
             )}
           >

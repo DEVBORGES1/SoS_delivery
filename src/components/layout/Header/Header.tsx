@@ -19,7 +19,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-header backdrop-blur-[14px]">
-      <div className="mx-auto flex h-[62px] max-w-[1280px] items-center justify-between gap-4 px-gutter md:h-[72px]">
+      <div className="mx-auto flex h-[62px] max-w-[1280px] items-center justify-between gap-2 px-gutter sm:gap-4 md:h-[72px]">
         <SectionLink
           sectionId="inicio"
           aria-label={`${storeConfig.name} — início`}
@@ -44,7 +44,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 min-[360px]:gap-2.5">
           <span className="hidden items-center gap-2 px-1.5 text-[13px] font-semibold text-muted lg:flex">
             <StatusDot isOpen={isOpen} />
             {labels.short}
