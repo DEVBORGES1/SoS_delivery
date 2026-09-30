@@ -14,20 +14,21 @@ interface ProductImage {
 }
 
 /**
- * Fotos disponíveis para os produtos. O banco guarda só a chave (`image_key`);
+ * Fotos disponíveis para os produtos. O `label` descreve o que aparece na foto
+ * (é o que o painel mostra na lista "Foto"). O banco guarda só a chave (`image_key`);
  * para usar uma foto nova, coloque o arquivo em `src/assets/images/` e
  * registre aqui — ela passa a aparecer na lista de fotos do painel.
  */
 export const productImages: Record<string, ProductImage> = {
-  'batata-bacon-cheddar': { label: 'Batata, Bacon e Cheddar', src: batataBaconCheddar },
-  'brigada-da-fome': { label: 'Brigada da Fome', src: brigadaDaFome },
-  'combate-duplo': { label: 'Combate Duplo', src: combateDuplo },
-  'operacao-crocante': { label: 'Operação Crocante', src: operacaoCrocante },
-  'resgate-do-pescador': { label: 'Resgate do Pescador', src: resgateDoPescador },
-  'resgate-em-equipe': { label: 'Resgate em Equipe', src: resgateEmEquipe },
-  'resgate-rapido': { label: 'Resgate Rápido', src: resgateRapido },
-  'resgate-supremo': { label: 'Resgate Supremo', src: resgateSupremo },
-  'sos-bravo': { label: 'SOS Bravo', src: sosBravo },
+  'batata-bacon-cheddar': { label: 'Batata com cheddar e bacon', src: batataBaconCheddar },
+  'brigada-da-fome': { label: 'Lanche de frango crocante com cheddar', src: brigadaDaFome },
+  'combate-duplo': { label: 'Lanche duplo com queijo coalho', src: combateDuplo },
+  'operacao-crocante': { label: 'Carne acebolada, fritas e mandioca', src: operacaoCrocante },
+  'resgate-do-pescador': { label: 'Peixe e camarão, polenta, fritas e limão', src: resgateDoPescador },
+  'resgate-em-equipe': { label: 'Tiras de frango, polenta e fritas', src: resgateEmEquipe },
+  'resgate-rapido': { label: 'Frango empanado, polenta, fritas e limão', src: resgateRapido },
+  'resgate-supremo': { label: 'Tiras de frango com fritas', src: resgateSupremo },
+  'sos-bravo': { label: 'Lanche com ovo e maionese verde', src: sosBravo },
 };
 
 export function getProductImage(key: string | null | undefined): string | undefined {
