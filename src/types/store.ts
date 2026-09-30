@@ -37,6 +37,8 @@ export interface StoreInfo {
   state: string;
   zipCode: string;
   mapsUrl: string;
+  /** Endereço do mapa incorporado (Google Maps → Compartilhar → Incorporar um mapa). */
+  mapsEmbedUrl: string;
 }
 
 /** Configurações que o painel `/admin` altera (tabela `store_settings`). */

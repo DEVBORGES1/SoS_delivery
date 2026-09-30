@@ -16,6 +16,8 @@ export const storeConfig: StoreInfo = {
   state: 'SC',
   zipCode: '89560-170',
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Rua+Saul+Brandalise%2C+588%2C+Centro%2C+Videira+-+SC%2C+89560-170',
+  mapsEmbedUrl:
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d222.172592263929!2d-51.14831571779113!3d-27.006094084757418!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94e14e4555dc3de1%3A0x505d49400e7a8d!2sR.%20Saul%20Brandalise%2C%20588%20-%20Centro%2C%20Videira%20-%20SC%2C%2089560-170!5e0!3m2!1spt-BR!2sbr!4v1790743453418!5m2!1spt-BR!2sbr',
 };
 
 /**

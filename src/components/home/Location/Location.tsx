@@ -58,11 +58,16 @@ function OpeningHoursCard() {
 function LocationCard() {
   return (
     <div className={cn(CARD, 'flex flex-col overflow-hidden')}>
-      <div className="bg-stripes relative grid min-h-60 flex-1 place-items-center">
-        <div className="flex flex-col items-center gap-2.5">
-          <span aria-hidden="true" className="size-[22px] rounded-full bg-accent shadow-[0_0_0_8px_rgb(211_48_31/0.25)]" />
-          <span className="font-mono text-xs text-muted">mapa · incorporar Google Maps</span>
-        </div>
+      <div className="bg-stripes relative min-h-[clamp(260px,32vw,340px)] flex-1">
+        {/* No tema escuro o mapa é invertido para não virar um bloco branco na página. */}
+        <iframe
+          src={storeConfig.mapsEmbedUrl}
+          title={`Mapa: ${storeConfig.address}, ${storeConfig.district}, ${storeConfig.city}`}
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          className="absolute inset-0 size-full border-0 [[data-theme=dark]_&]:[filter:invert(.9)_hue-rotate(180deg)_brightness(.95)_contrast(.9)]"
+        />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-4 p-[clamp(24px,3vw,32px)]">
         <div>
