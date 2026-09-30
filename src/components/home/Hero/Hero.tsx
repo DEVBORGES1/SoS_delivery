@@ -24,14 +24,15 @@ export function Hero({ featuredProduct }: HeroProps) {
       className="scroll-mt-[72px] overflow-hidden bg-bg px-gutter pt-[clamp(28px,5vw,64px)] pb-[clamp(48px,6vw,80px)]"
     >
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] items-center gap-[clamp(32px,5vw,64px)]">
-        <div className="flex flex-col items-start">
+        <div className="@container flex flex-col items-start">
           <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-[13px] font-bold tracking-[.04em]">
             <StatusDot isOpen={isOpen} />
             {labels.chip}
           </span>
+          {/* "HAMBÚRGUER" mede ~5em: limitar a 19cqi garante que a palavra caiba na coluna. */}
           <h1
             id="hero-title"
-            className="mt-[22px] font-display text-[clamp(58px,9.5vw,142px)] leading-[1.12] font-normal uppercase"
+            className="mt-[22px] font-display text-[clamp(min(58px,19cqi),min(9.5vw,19cqi),142px)] leading-[1.12] font-normal uppercase"
           >
             Seu novo
             <br />
