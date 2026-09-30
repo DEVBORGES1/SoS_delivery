@@ -7,7 +7,7 @@ import type { StoreInfo, StoreSettings } from '../types/store';
 export const storeConfig: StoreInfo = {
   name: 'S.O.S Delivery Videira',
   shortName: 'S.O.S Delivery',
-  tagline: 'Hambúrguer artesanal feito na hora. Deu fome, chama que a gente resgata.',
+  tagline: 'O resgate da sua fome!',
   instagram: '@sos_delivery_videira',
   instagramUrl: 'https://www.instagram.com/sos_delivery_videira',
   address: 'Rua Saul Brandalise, 588',

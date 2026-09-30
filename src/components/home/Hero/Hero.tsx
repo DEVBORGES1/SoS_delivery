@@ -29,16 +29,16 @@ export function Hero({ featuredProduct }: HeroProps) {
             <StatusDot isOpen={isOpen} />
             {labels.chip}
           </span>
-          {/* "HAMBÚRGUER" mede ~5em: limitar a 19cqi garante que a palavra caiba na coluna. */}
+          {/* Limitar a 19cqi (~5em de texto) garante que a linha mais longa caiba na coluna, sem ficar atrás da foto. */}
           <h1
             id="hero-title"
             className="mt-[22px] font-display text-[clamp(min(58px,19cqi),min(9.5vw,19cqi),142px)] leading-[1.12] font-normal uppercase"
           >
-            Seu novo
+            O resgate
             <br />
-            hambúrguer
+            da sua
             <br />
-            <span className="text-accent">favorito.</span>
+            <span className="text-accent">fome!</span>
           </h1>
           <p className="mt-6 max-w-[460px] text-[clamp(16px,1.5vw,19px)] leading-normal text-pretty text-muted">
             Deu fome? A gente atende o chamado. Blend artesanal, brioche selado na chapa e nada de frescura — feito
