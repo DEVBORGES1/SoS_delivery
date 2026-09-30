@@ -26,7 +26,7 @@ Não há pagamento online: o pedido é enviado como mensagem formatada via `http
 
 Em `/admin`, com e-mail e senha, a loja cuida de tudo sem mexer no código:
 
-- **Pedidos:** cada pedido feito no site aparece na hora (com bipe). Etapas Recebido → Aceito → Preparando → Saiu/Pronto → Concluído; cada botão abre o WhatsApp do cliente com a mensagem pronta. Dá para recusar ou cancelar avisando o cliente.
+- **Pedidos:** cada pedido feito no site aparece na hora (com bipe). Etapas Recebido → Aceito → Preparando → Saiu/Pronto → Concluído; cada botão abre o WhatsApp do cliente com a mensagem pronta. Dá para recusar ou cancelar avisando o cliente e, no fim do turno, limpar os concluídos e cancelados.
 - **Visão geral:** abrir/fechar a loja na hora (ou automático pelo horário), contadores e o aviso em faixa amarela no topo do site.
 - **Cardápio:** busca, filtro por categoria, preço editável direto na lista, disponível/esgotado, e edição completa (foto enviada do celular, selo, adicionais, destaque na capa, prévia do card).
 - **Promoções:** desconto em % ou preço final, com validade; no site o preço normal aparece riscado.

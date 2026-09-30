@@ -201,7 +201,12 @@ drop policy if exists "Admins alteram pedidos" on public.orders;
 create policy "Admins alteram pedidos" on public.orders
   for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
 
-grant select, update on public.orders to authenticated;
+-- Permite limpar pedidos concluídos/cancelados no fim do turno.
+drop policy if exists "Admins excluem pedidos" on public.orders;
+create policy "Admins excluem pedidos" on public.orders
+  for delete to authenticated using ((select public.is_admin()));
+
+grant select, update, delete on public.orders to authenticated;
 
 create or replace function public.create_order(payload jsonb)
 returns bigint

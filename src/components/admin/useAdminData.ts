@@ -252,6 +252,33 @@ export function useAdminData() {
     [run],
   );
 
+  /** Exclui pedidos (usado para limpar concluídos/cancelados no fim do turno). */
+  const deleteOrders = useCallback(
+    async (ids: number[], successText: string) => {
+      const client = supabase;
+      if (!client || ids.length === 0) return false;
+      setSaving(true);
+      // `select` devolve as linhas apagadas: sem a permissão de excluir (banco
+      // desatualizado), o Supabase não dá erro, só não apaga nada.
+      const { data: deleted, error } = await client.from('orders').delete().in('id', ids).select('id');
+      setSaving(false);
+      if (error) {
+        notify(describeError(error), 'error');
+        return false;
+      }
+      const deletedIds = new Set(((deleted ?? []) as { id: number }[]).map((row) => row.id));
+      if (deletedIds.size === 0) {
+        notify('Banco desatualizado: rode o supabase/schema.sql de novo para liberar a exclusão de pedidos.', 'error');
+        return false;
+      }
+      setOrders((current) => current.filter((order) => !deletedIds.has(order.id)));
+      setSavedAt(new Date());
+      notify(successText);
+      return true;
+    },
+    [notify],
+  );
+
   return {
     products,
     promotions,
@@ -268,6 +295,7 @@ export function useAdminData() {
     savePromotion,
     deletePromotion,
     setOrderStatus,
+    deleteOrders,
   };
 }
 

@@ -7,7 +7,7 @@ import { formatCurrency } from '../../utils/currency';
 import { onlyDigits } from '../../utils/formatters';
 import { PAYMENT_METHOD_LABELS } from '../../utils/order';
 import { formatAgo, formatClockTime } from './adminFormat';
-import { Chips, EYEBROW, MUTED } from './adminUi';
+import { Chips, ConfirmButton, EYEBROW, MUTED } from './adminUi';
 import {
   ACTIVE_STATUSES,
   ORDER_STATUS,
@@ -60,10 +60,12 @@ interface OrderDetailProps {
   now: number;
   onClose: () => void;
   onStatus: AdminData['setOrderStatus'];
+  onDelete: () => void;
 }
 
-function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatus }: OrderDetailProps) {
+function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatus, onDelete }: OrderDetailProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const flow = orderFlow(order.orderType);
   const currentIndex = flow.indexOf(order.status);
   const cancelled = order.status === 'cancelado';
@@ -178,8 +180,18 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
             </div>
           </div>
         ) : (
-          <div className="rounded-[14px] bg-[#f4efe7] px-4 py-3.5 text-sm font-bold">
-            {cancelled ? 'Pedido cancelado — o cliente foi avisado.' : 'Pedido concluído. Tudo certo!'}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-[#f4efe7] px-4 py-3">
+            <span className="text-sm font-bold">
+              {cancelled ? 'Pedido cancelado — o cliente foi avisado.' : 'Pedido concluído. Tudo certo!'}
+            </span>
+            <ConfirmButton
+              label="Excluir pedido"
+              confirmLabel="Confirmar exclusão"
+              confirming={confirmDelete}
+              disabled={saving}
+              onClick={() => (confirmDelete ? onDelete() : setConfirmDelete(true))}
+              className="h-10 rounded-[10px] px-3.5 text-[13px]"
+            />
           </div>
         )}
 
@@ -292,6 +304,26 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
   const list = orders.filter(match);
   const selected = list.find((order) => order.id === selectedId) ?? (wide ? list[0] : undefined);
 
+  // Fim do turno: limpar de uma vez os concluídos ou os cancelados.
+  const [confirmClear, setConfirmClear] = useState(false);
+  const clearable = filter === 'concluidos' || filter === 'cancelados';
+  const clearLabel = filter === 'concluidos' ? 'concluídos' : 'cancelados';
+  const listTotal = list.reduce((sum, order) => sum + order.total, 0);
+
+  const clearList = async () => {
+    if (!confirmClear) {
+      setConfirmClear(true);
+      setTimeout(() => setConfirmClear(false), 4000);
+      return;
+    }
+    setConfirmClear(false);
+    const count = list.length;
+    await data.deleteOrders(
+      list.map((order) => order.id),
+      `${count} ${count === 1 ? 'pedido excluído' : 'pedidos excluídos'}`,
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <Chips
@@ -300,9 +332,29 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
         onChange={(id) => {
           onFilter(id);
           setSelectedId(null);
+          setConfirmClear(false);
         }}
         options={FILTERS.map(({ id, label, match: test }) => ({ id, label, count: orders.filter(test).length }))}
       />
+      {clearable && list.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e4dccf] bg-white px-[18px] py-3.5">
+          <div>
+            <div className="text-[15px] font-extrabold">
+              {list.length} {list.length === 1 ? 'pedido' : 'pedidos'}
+              {filter === 'concluidos' && ` · ${formatCurrency(listTotal)}`}
+            </div>
+            <div className={cn('text-[13px]', MUTED)}>Terminou o turno? Limpe a lista para começar o próximo do zero.</div>
+          </div>
+          <ConfirmButton
+            label={`Limpar ${clearLabel}`}
+            confirmLabel={`Excluir ${list.length} ${list.length === 1 ? 'pedido' : 'pedidos'}`}
+            confirming={confirmClear}
+            disabled={data.saving}
+            onClick={() => void clearList()}
+            className="h-11 rounded-[10px]"
+          />
+        </div>
+      )}
       <div className="grid items-start gap-4 min-[1180px]:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="flex min-w-0 flex-col gap-2.5">
           {list.map((order) => {
@@ -358,6 +410,10 @@ export function OrdersTab({ data, filter, onFilter }: OrdersTabProps) {
             now={now}
             onClose={() => setSelectedId(null)}
             onStatus={data.setOrderStatus}
+            onDelete={() => {
+              setSelectedId(null);
+              void data.deleteOrders([selected.id], `Pedido #${selected.id} excluído`);
+            }}
           />
         )}
       </div>
