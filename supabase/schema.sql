@@ -274,6 +274,98 @@ exception
 end;
 $$;
 
+-- Impressão da comanda ------------------------------------------------------------
+-- O painel aceita o pedido e manda a comanda para o agente de impressão do
+-- computador da loja. As funções abaixo mudam o pedido numa única operação
+-- (com a linha travada), então dois cliques ou duas abas nunca imprimem duas vezes:
+--   none     → nunca foi impressa
+--   printing → alguém reservou a impressão e está enviando
+--   printed  → saiu na impressora
+--   failed   → não saiu (o motivo fica em print_error)
+alter table public.orders
+  add column if not exists print_status text not null default 'none'
+    check (print_status in ('none', 'printing', 'printed', 'failed')),
+  add column if not exists print_error text not null default '' check (length(print_error) <= 200),
+  add column if not exists print_attempts integer not null default 0,
+  add column if not exists print_updated_at timestamptz,
+  add column if not exists printed_at timestamptz;
+
+-- Aceita o pedido (só se ainda estiver "novo") e, se pedido, já reserva a impressão.
+-- Não devolve nada quando o pedido já tinha sido aceito: é o que barra o duplo clique.
+create or replace function public.accept_order(order_id bigint, claim_print boolean)
+returns setof public.orders
+language sql
+volatile
+security invoker
+set search_path = ''
+as $$
+  update public.orders
+     set status = 'aceito',
+         history = history || jsonb_build_array(
+           jsonb_build_object('s', 'aceito', 'at', floor(extract(epoch from now()) * 1000))
+         ),
+         print_status = case when claim_print then 'printing' else print_status end,
+         print_attempts = print_attempts + case when claim_print then 1 else 0 end,
+         print_error = case when claim_print then '' else print_error end,
+         print_updated_at = case when claim_print then now() else print_updated_at end
+   where id = order_id
+     and status = 'novo'
+     and (select public.is_admin())
+  returning *;
+$$;
+
+-- Reserva a impressão de um pedido já aceito. Só reserva se a comanda ainda não
+-- saiu (ou falhou), se a reserva anterior ficou parada há mais de 2 minutos
+-- (aba fechada no meio do envio) ou, com `reprint`, se o lojista pediu uma segunda via.
+create or replace function public.claim_print(order_id bigint, reprint boolean)
+returns setof public.orders
+language sql
+volatile
+security invoker
+set search_path = ''
+as $$
+  update public.orders
+     set print_status = 'printing',
+         print_attempts = print_attempts + 1,
+         print_error = '',
+         print_updated_at = now()
+   where id = order_id
+     and status not in ('novo', 'cancelado')
+     and (
+       print_status in ('none', 'failed')
+       or (reprint and print_status = 'printed')
+       or (print_status = 'printing' and print_updated_at < now() - interval '2 minutes')
+     )
+     and (select public.is_admin())
+  returning *;
+$$;
+
+-- Grava o resultado da impressão reservada.
+create or replace function public.finish_print(order_id bigint, success boolean, error_message text)
+returns setof public.orders
+language sql
+volatile
+security invoker
+set search_path = ''
+as $$
+  update public.orders
+     set print_status = case when success then 'printed' else 'failed' end,
+         printed_at = case when success then now() else printed_at end,
+         print_error = case when success then '' else left(coalesce(error_message, ''), 200) end,
+         print_updated_at = now()
+   where id = order_id
+     and print_status = 'printing'
+     and (select public.is_admin())
+  returning *;
+$$;
+
+revoke all on function public.accept_order(bigint, boolean) from public, anon;
+revoke all on function public.claim_print(bigint, boolean) from public, anon;
+revoke all on function public.finish_print(bigint, boolean, text) from public, anon;
+grant execute on function public.accept_order(bigint, boolean) to authenticated;
+grant execute on function public.claim_print(bigint, boolean) to authenticated;
+grant execute on function public.finish_print(bigint, boolean, text) to authenticated;
+
 -- Fotos enviadas pelo painel (Storage) ------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('product-images', 'product-images', true, 2097152, array['image/webp', 'image/jpeg', 'image/png'])

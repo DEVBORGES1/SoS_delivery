@@ -31,6 +31,13 @@ Em `/admin`, com e-mail e senha, a loja cuida de tudo sem mexer no código:
 - **Cardápio:** busca, filtro por categoria, preço editável direto na lista, disponível/esgotado, e edição completa (foto enviada do celular, selo, adicionais, destaque na capa, prévia do card).
 - **Promoções:** desconto em % ou preço final, com validade; no site o preço normal aparece riscado.
 - **Loja:** taxa de entrega, WhatsApp que recebe os pedidos, horário de cada dia, entrega/retirada e tempos.
+- **Impressora (Loja → Impressora):** ao aceitar o pedido, a comanda sai na impressora térmica da loja. Tem status (🟢/🔴 no topo do painel), impressão automática liga/desliga, escolha da impressora, tabela de acentos e "Imprimir teste". Se a impressão falhar, o pedido continua aceito e aparece "Tentar novamente".
+
+### Impressão da comanda
+
+O navegador não acessa a impressora USB. Quem imprime é o **agente de impressão** ([`printer-agent/`](printer-agent/README.md)), um `.exe` que fica aberto no computador da loja: o painel manda os dados do pedido para `http://127.0.0.1:3333`, e o agente monta a comanda em ESC/POS (58mm) e imprime pelo driver do Windows. O banco guarda a situação de cada comanda (`print_status`), o que impede impressão duplicada mesmo com duplo clique ou duas abas abertas.
+
+Instalação: `cd printer-agent && npm install && npm run build`, copie `printer-agent/dist/` para o computador da loja e siga o `LEIA-ME.txt`. Se o painel for aberto por outro endereço (domínio próprio, por exemplo), adicione-o em `allowedOrigins` no `config.json` do agente.
 
 Os dados ficam no Supabase. O site lê o banco uma vez por visita; se o banco não responder em 5 s, usa os dados do código. O pedido sempre vai para o WhatsApp da loja, mesmo que o banco esteja fora do ar (nesse caso ele só não aparece no painel).
 

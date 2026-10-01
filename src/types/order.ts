@@ -77,6 +77,12 @@ export interface OrderHistoryEntry {
   at: number;
 }
 
+/**
+ * Situação da comanda impressa (colunas `print_*` da tabela `orders`):
+ * `none` nunca impressa · `printing` enviando · `printed` saiu · `failed` não saiu.
+ */
+export type PrintStatus = 'none' | 'printing' | 'printed' | 'failed';
+
 /** Pedido como o painel `/admin` enxerga. */
 export interface AdminOrder {
   id: number;
@@ -95,4 +101,11 @@ export interface AdminOrder {
   deliveryFee: number;
   total: number;
   history: OrderHistoryEntry[];
+  printStatus: PrintStatus;
+  /** Motivo da última falha de impressão. */
+  printError: string;
+  printAttempts: number;
+  /** Última mudança na impressão (ms). */
+  printUpdatedAt: number | null;
+  printedAt: number | null;
 }

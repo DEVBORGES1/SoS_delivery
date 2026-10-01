@@ -6,6 +6,7 @@ import { formatWhatsappDisplay, onlyDigits } from '../../utils/formatters';
 import { WEEK_ORDER, formatClock, parseClock, weekdayLabel } from '../../utils/storeHours';
 import { parsePrice, priceToInput } from './adminFormat';
 import { BTN_PRIMARY, CARD, CARD_PAD, Field, INPUT, MUTED, PrefixedInput, Switch } from './adminUi';
+import { PrinterSettings } from './PrinterControls';
 import { NotificationSettings } from './SoundControls';
 import type { AdminData } from './useAdminData';
 
@@ -206,6 +207,8 @@ export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () =
           </Field>
         </div>
       </section>
+
+      <PrinterSettings notify={notify} />
 
       <NotificationSettings />
 

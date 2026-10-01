@@ -1,5 +1,5 @@
 import { ArrowLeft, MessageCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import type { AdminOrder, OrderStatus } from '../../types/order';
 import { cn } from '../../utils/cn';
@@ -19,6 +19,8 @@ import {
   orderFlow,
   withAlpha,
 } from './orderFlow';
+import { OrderPrintPanel } from './PrinterControls';
+import { usePrinterStore } from './printerStore';
 import type { AdminData } from './useAdminData';
 
 type OrderFilter = 'ativos' | 'novos' | 'concluidos' | 'cancelados';
@@ -60,12 +62,40 @@ interface OrderDetailProps {
   now: number;
   onClose: () => void;
   onStatus: AdminData['setOrderStatus'];
+  onAccept: AdminData['acceptOrder'];
+  onPrint: AdminData['printOrder'];
+  /** Esta aba está mandando a comanda deste pedido para a impressora. */
+  sending: boolean;
   onDelete: () => void;
 }
 
-function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatus, onDelete }: OrderDetailProps) {
+/** Depois de um clique no botão da etapa, ignora outro clique por este tempo (duplo clique). */
+const ACTION_LOCK_MS = 1500;
+
+function OrderDetail({
+  order,
+  deliveryEta,
+  saving,
+  narrow,
+  now,
+  onClose,
+  onStatus,
+  onAccept,
+  onPrint,
+  sending,
+  onDelete,
+}: OrderDetailProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const actionLocked = useRef(false);
+  const autoPrint = usePrinterStore((state) => state.autoPrint);
+  /** `false` se houve um clique há menos de ACTION_LOCK_MS. */
+  const takeActionLock = () => {
+    if (actionLocked.current) return false;
+    actionLocked.current = true;
+    setTimeout(() => (actionLocked.current = false), ACTION_LOCK_MS);
+    return true;
+  };
   const flow = orderFlow(order.orderType);
   const currentIndex = flow.indexOf(order.status);
   const cancelled = order.status === 'cancelado';
@@ -140,9 +170,15 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
               target="_blank"
               rel="noopener noreferrer"
               aria-disabled={saving}
-              onClick={() => {
+              onClick={(event) => {
+                // Duplo clique: o segundo clique não avança outra etapa nem abre outro WhatsApp.
+                if (saving || !takeActionLock()) {
+                  event.preventDefault();
+                  return;
+                }
                 setConfirmCancel(false);
-                void onStatus(order, next, `Pedido #${order.id}: ${ORDER_STATUS[next].label} · WhatsApp aberto`);
+                const text = `Pedido #${order.id}: ${ORDER_STATUS[next].label} · WhatsApp aberto`;
+                void (next === 'aceito' ? onAccept(order, text) : onStatus(order, next, text));
               }}
               className="flex h-14 items-center justify-center gap-2.5 rounded-[14px] bg-[#178a45] text-[15px] font-extrabold tracking-[.03em] text-white shadow-[0_10px_24px_-12px_rgba(23,138,69,.8)] hover:brightness-110"
             >
@@ -152,6 +188,7 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className={cn('max-w-[360px] text-[12.5px]', MUTED)}>
                 Abre o WhatsApp com a mensagem pronta. É só apertar enviar.
+                {next === 'aceito' && (autoPrint ? ' A comanda é impressa ao aceitar.' : ' Impressão automática desligada.')}
               </span>
               <a
                 href={confirmCancel ? customerWhatsAppUrl(order.customerPhone, cancelMessage) : '#'}
@@ -193,6 +230,17 @@ function OrderDetail({ order, deliveryEta, saving, narrow, now, onClose, onStatu
               className="h-10 rounded-[10px] px-3.5 text-[13px]"
             />
           </div>
+        )}
+
+        {order.status !== 'novo' && !cancelled && (
+          <OrderPrintPanel
+            order={order}
+            sending={sending}
+            now={now}
+            onPrint={(reprint) => {
+              if (takeActionLock()) void onPrint(order, reprint);
+            }}
+          />
         )}
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-3.5">
@@ -416,6 +464,9 @@ export function OrdersTab({ data, filter, onFilter, selectedId, onSelect, unseen
             now={now}
             onClose={() => onSelect(null)}
             onStatus={data.setOrderStatus}
+            onAccept={data.acceptOrder}
+            onPrint={data.printOrder}
+            sending={data.sendingIds.has(selected.id)}
             onDelete={() => {
               onSelect(null);
               void data.deleteOrders([selected.id], `Pedido #${selected.id} excluído`);

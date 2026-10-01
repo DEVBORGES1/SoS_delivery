@@ -1,0 +1,23 @@
+{
+  "name": "sos-impressora",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Agente local que imprime as comandas do painel S.O.S Delivery na impressora térmica (ESC/POS).",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node src/main.ts",
+    "simular": "node src/main.ts --simular",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test \"test/*.test.ts\"",
+    "build": "node scripts/build-exe.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "esbuild": "^0.25.10",
+    "postject": "^1.0.0-alpha.6",
+    "typescript": "~6.0.2"
+  }
+}

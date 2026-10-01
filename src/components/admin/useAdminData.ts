@@ -18,6 +18,8 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import type { AdminOrder, OrderStatus } from '../../types/order';
 import type { Product, Promotion } from '../../types/product';
 import type { StoreSettings } from '../../types/store';
+import { printOrderTicket } from './printAgent';
+import { usePrinterStore } from './printerStore';
 import { useOrderAlertStore } from './useOrderAlerts';
 
 export interface Toast {
@@ -35,6 +37,11 @@ function sortOrders(orders: AdminOrder[]): AdminOrder[] {
   return [...orders].sort((a, b) => b.createdAt - a.createdAt);
 }
 
+/** Função nova do banco ainda não criada: o schema.sql atualizado não foi rodado. */
+function isMissingFunction(error: { code?: string; message?: string }): boolean {
+  return error.code === 'PGRST202' || error.code === '42883' || /could not find the function/i.test(error.message ?? '');
+}
+
 /**
  * Estado do painel: cardápio, promoções, configurações e pedidos, com as
  * funções que gravam no Supabase e o aviso ("toast") de cada ação.
@@ -48,6 +55,8 @@ export function useAdminData() {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
+  /** Pedidos cuja comanda esta aba está mandando para a impressora agora. */
+  const [sendingIds, setSendingIds] = useState<ReadonlySet<number>>(() => new Set());
 
   const notify = useCallback((text: string, tone: Toast['tone'] = 'success') => {
     setToast({ id: Date.now(), text, tone });
@@ -244,6 +253,123 @@ export function useAdminData() {
     [run],
   );
 
+  const replaceOrder = useCallback((next: AdminOrder) => {
+    setOrders((current) => current.map((item) => (item.id === next.id ? next : item)));
+  }, []);
+
+  /**
+   * Manda a comanda (já reservada no banco com `printing`) para o agente e grava
+   * o resultado. Falhar aqui nunca desfaz o aceite: o pedido segue aceito.
+   */
+  const sendToPrinter = useCallback(
+    async (order: AdminOrder, reprint: boolean) => {
+      const client = supabase;
+      if (!client) return false;
+      setSendingIds((current) => new Set(current).add(order.id));
+      const result = await printOrderTicket(order, reprint);
+      setSendingIds((current) => {
+        const next = new Set(current);
+        next.delete(order.id);
+        return next;
+      });
+
+      const { data, error } = await client.rpc('finish_print', {
+        order_id: order.id,
+        success: result.ok,
+        error_message: result.ok ? '' : result.message,
+      });
+      const saved = !error ? (data as OrderRow[] | null)?.[0] : undefined;
+      replaceOrder(
+        saved
+          ? orderFromRow(saved)
+          : {
+              ...order,
+              printStatus: result.ok ? 'printed' : 'failed',
+              printError: result.ok ? '' : result.message,
+              printUpdatedAt: Date.now(),
+              printedAt: result.ok ? Date.now() : order.printedAt,
+            },
+      );
+
+      if (result.ok) {
+        notify(result.alreadyPrinted ? `Comanda #${order.id} já tinha saído na impressora` : `Comanda #${order.id} impressa com sucesso`);
+      } else {
+        notify(`Pedido #${order.id} aceito, mas não foi possível imprimir. ${result.message}`, 'error');
+      }
+      return result.ok;
+    },
+    [notify, replaceOrder],
+  );
+
+  /**
+   * Aceita o pedido e, com a impressão automática ligada, já imprime a comanda.
+   * O banco só aceita um pedido "novo": o segundo clique (ou outra aba) não faz nada.
+   */
+  const acceptOrder = useCallback(
+    async (order: AdminOrder, successText: string) => {
+      const client = supabase;
+      if (!client) return false;
+      const autoPrint = usePrinterStore.getState().autoPrint;
+      setSaving(true);
+      const { data, error } = await client.rpc('accept_order', { order_id: order.id, claim_print: autoPrint });
+      setSaving(false);
+      if (error) {
+        if (isMissingFunction(error)) {
+          notify('Banco desatualizado: rode o supabase/schema.sql de novo para ativar a impressão da comanda.', 'error');
+          return setOrderStatus(order, 'aceito', successText);
+        }
+        notify(describeError(error), 'error');
+        return false;
+      }
+      const row = (data as OrderRow[] | null)?.[0];
+      if (!row) {
+        notify(`Pedido #${order.id} já tinha sido aceito`);
+        void fetchOrders();
+        return false;
+      }
+      const accepted = orderFromRow(row);
+      replaceOrder(accepted);
+      setSavedAt(new Date());
+      if (accepted.printStatus !== 'printing') {
+        notify(successText);
+        return true;
+      }
+      notify(`Pedido #${order.id} aceito · enviando para impressão…`);
+      void sendToPrinter(accepted, false);
+      return true;
+    },
+    [notify, setOrderStatus, fetchOrders, replaceOrder, sendToPrinter],
+  );
+
+  /** "Tentar novamente", "Imprimir comanda" ou "Reimprimir" (`reprint`): reserva no banco e imprime. */
+  const printOrder = useCallback(
+    async (order: AdminOrder, reprint: boolean) => {
+      const client = supabase;
+      if (!client) return false;
+      const { data, error } = await client.rpc('claim_print', { order_id: order.id, reprint });
+      if (error) {
+        notify(
+          isMissingFunction(error)
+            ? 'Banco desatualizado: rode o supabase/schema.sql de novo para ativar a impressão da comanda.'
+            : describeError(error),
+          'error',
+        );
+        return false;
+      }
+      const row = (data as OrderRow[] | null)?.[0];
+      if (!row) {
+        notify(`A comanda #${order.id} já está sendo impressa ou já saiu.`, 'error');
+        void fetchOrders();
+        return false;
+      }
+      const claimed = orderFromRow(row);
+      replaceOrder(claimed);
+      notify(`Pedido #${order.id}: enviando para impressão…`);
+      return sendToPrinter(claimed, reprint);
+    },
+    [notify, fetchOrders, replaceOrder, sendToPrinter],
+  );
+
   /** Exclui pedidos (usado para limpar concluídos/cancelados no fim do turno). */
   const deleteOrders = useCallback(
     async (ids: number[], successText: string) => {
@@ -287,6 +413,9 @@ export function useAdminData() {
     savePromotion,
     deletePromotion,
     setOrderStatus,
+    acceptOrder,
+    printOrder,
+    sendingIds,
     deleteOrders,
   };
 }

@@ -1,0 +1,33 @@
+AGENTE DE IMPRESSAO - S.O.S DELIVERY
+====================================
+
+Imprime a comanda na impressora termica quando o pedido e aceito no painel.
+
+INSTALACAO (uma vez)
+1. Instale a impressora no Windows com o driver que veio com ela
+   (ela precisa aparecer em Configuracoes > Impressoras e scanners).
+2. Copie esta pasta para o computador da loja, por exemplo C:\SOS-Impressora
+   (evite a Area de Trabalho do OneDrive).
+3. De dois cliques em sos-impressora.exe. Se o Windows avisar "O Windows
+   protegeu o computador", clique em "Mais informacoes" > "Executar assim mesmo".
+4. De dois cliques em iniciar-com-o-windows.cmd para ele abrir sozinho
+   quando o computador ligar.
+5. No painel: Loja > Impressora. Escolha a impressora e clique em
+   "Imprimir teste". Se os acentos sairem errados, troque a "Tabela de acentos".
+   Se o Chrome perguntar se o site pode acessar dispositivos da rede local,
+   clique em PERMITIR.
+
+NO DIA A DIA
+- Deixe a janela preta aberta (pode minimizar). Fechou? Abra o .exe de novo.
+- A comanda sai quando voce clica em "Aceitar pedido" no painel.
+- Se a impressora estiver desligada, o pedido continua aceito e o painel
+  mostra "Tentar novamente".
+
+ARQUIVOS CRIADOS NESTA PASTA
+- config.json     impressora escolhida, tabela de acentos, sites autorizados
+- impressas.json  pedidos ja impressos (evita comanda duplicada)
+- agente.log      historico, util para descobrir problemas
+
+SEGURANCA
+O agente so atende o proprio computador (127.0.0.1:3333) e so aceita pedidos
+do site da loja (lista "allowedOrigins" no config.json).

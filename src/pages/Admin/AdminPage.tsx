@@ -13,6 +13,7 @@ import { PromotionDrawer, PromotionsTab } from '../../components/admin/Promotion
 import { StoreTab } from '../../components/admin/StoreTab';
 import { useAdminData } from '../../components/admin/useAdminData';
 import { useOrderAlerts } from '../../components/admin/useOrderAlerts';
+import { usePrinterHealthPolling } from '../../components/admin/printerStore';
 import { describeError, supabase } from '../../services/supabaseClient';
 import type { Product, Promotion } from '../../types/product';
 import { cn } from '../../utils/cn';
@@ -122,6 +123,7 @@ function Dashboard() {
     window.scrollTo(0, 0);
   }, []);
   const alerts = useOrderAlerts(data.orders, showOrder);
+  usePrinterHealthPolling();
   const selectOrder = (id: number | null) => {
     if (id !== null) alerts.markSeen(id);
     setSelectedOrderId(id);

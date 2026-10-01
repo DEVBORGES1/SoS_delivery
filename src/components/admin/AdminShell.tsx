@@ -6,6 +6,7 @@ import { ThemeToggle } from '../layout/ThemeToggle/ThemeToggle';
 import type { StoreStatusOverride } from '../../types/store';
 import { cn } from '../../utils/cn';
 import { TABS, type AdminTab } from './adminTabs';
+import { PrinterStatusButton } from './PrinterControls';
 import { SoundStatusButton } from './SoundControls';
 import type { Toast } from './useAdminData';
 import { useStoreStatusText } from './useStoreStatusText';
@@ -177,6 +178,12 @@ export function AdminShell({
                 <span className="size-[7px] rounded-full bg-[#178a45]" />
                 {savedLabel}
               </span>
+              <PrinterStatusButton
+                onOpenSettings={() => {
+                  onTab('store');
+                  setTimeout(() => document.getElementById('impressora')?.scrollIntoView({ behavior: 'smooth' }), 50);
+                }}
+              />
               <SoundStatusButton />
               <ThemeToggle className="min-[960px]:hidden" />
               <Link

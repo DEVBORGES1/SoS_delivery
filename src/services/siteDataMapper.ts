@@ -1,5 +1,5 @@
 import { getProductImage } from '../data/productImages';
-import type { AdminOrder, OrderHistoryEntry, OrderStatus, PaymentMethod, SavedOrderLine } from '../types/order';
+import type { AdminOrder, OrderHistoryEntry, OrderStatus, PaymentMethod, PrintStatus, SavedOrderLine } from '../types/order';
 import type { Addon, DiscountType, Product, Promotion } from '../types/product';
 import type { DayHours, StoreSettings, StoreStatusOverride, Weekday } from '../types/store';
 
@@ -65,10 +65,21 @@ export interface OrderRow {
   delivery_fee: number | string;
   total: number | string;
   history: OrderHistoryEntry[] | null;
+  /** Colunas da impressão: ausentes enquanto o schema.sql atualizado não foi rodado. */
+  print_status?: PrintStatus | null;
+  print_error?: string | null;
+  print_attempts?: number | null;
+  print_updated_at?: string | null;
+  printed_at?: string | null;
 }
 
 const WEEKDAYS = new Set<number>([0, 1, 2, 3, 4, 5, 6]);
 const STATUS_OVERRIDES = new Set<string>(['auto', 'open', 'closed']);
+const PRINT_STATUSES = new Set<string>(['none', 'printing', 'printed', 'failed']);
+
+function toTime(value: string | null | undefined): number | null {
+  return value ? new Date(value).getTime() : null;
+}
 
 function toHour(value: unknown): number | null {
   return typeof value === 'number' && value >= 0 && value <= 24 ? value : null;
@@ -201,5 +212,10 @@ export function orderFromRow(row: OrderRow): AdminOrder {
     deliveryFee: Number(row.delivery_fee) || 0,
     total: Number(row.total) || 0,
     history: Array.isArray(row.history) ? row.history : [],
+    printStatus: row.print_status && PRINT_STATUSES.has(row.print_status) ? row.print_status : 'none',
+    printError: row.print_error ?? '',
+    printAttempts: row.print_attempts ?? 0,
+    printUpdatedAt: toTime(row.print_updated_at),
+    printedAt: toTime(row.printed_at),
   };
 }

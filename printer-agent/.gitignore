@@ -1,0 +1,8 @@
+node_modules
+dist
+# Arquivos criados pelo agente ao rodar
+config.json
+impressas.json
+simulador.json
+agente.log
+saida-simulada
