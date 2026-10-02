@@ -20,7 +20,7 @@ function ProductModalContent({ product, onClose }: { product: Product; onClose: 
   return (
     <>
       <div className="bg-stripes relative h-[230px] w-full flex-none md:h-auto md:w-[46%]">
-        <ProductImage product={product} fit="contain" className="absolute inset-0" />
+        <ProductImage product={product} className="absolute inset-0" />
         <button
           type="button"
           onClick={onClose}
