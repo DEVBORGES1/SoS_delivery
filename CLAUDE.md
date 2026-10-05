@@ -7,3 +7,8 @@
 - Descrições de pull request também não levam rodapé de atribuição (ex.: "Generated with Claude Code").
 - O hook `.githooks/commit-msg` remove essas linhas automaticamente. Para ativá-lo em um clone novo:
   `git config core.hooksPath .githooks`
+
+## Branches
+
+- Commits vão direto na `main`, com histórico linear (sem merge commit). Não criar nem enviar branches `claude/...` ou qualquer outra branch de trabalho.
+- Antes de enviar: `git pull --ff-only origin main`, rodar build/lint/testes e depois `git push origin main`.
