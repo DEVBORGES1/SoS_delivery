@@ -6,7 +6,7 @@ import { PAYMENT_METHOD_LABELS } from '../../utils/order';
 
 export const ORDER_STATUS: Record<OrderStatus, { label: string; color: string }> = {
   novo: { label: 'Novo', color: 'var(--adm-st-novo)' },
-  aceito: { label: 'Aceito', color: 'var(--adm-st-aceito)' },
+  aceito: { label: 'Aceito · na chapa', color: 'var(--adm-st-aceito)' },
   preparando: { label: 'Preparando', color: 'var(--adm-st-preparando)' },
   saiu: { label: 'Saiu pra entrega', color: 'var(--adm-st-saiu)' },
   pronto: { label: 'Pronto pra retirada', color: 'var(--adm-st-saiu)' },
@@ -18,7 +18,7 @@ export const ACTIVE_STATUSES: OrderStatus[] = ['novo', 'aceito', 'preparando', '
 
 export const STEP_LABELS: Record<OrderStatus, string> = {
   novo: 'Recebido',
-  aceito: 'Aceito',
+  aceito: 'Aceito · na chapa',
   preparando: 'Preparando',
   saiu: 'Saiu pra entrega',
   pronto: 'Pronto pra retirada',
@@ -28,24 +28,29 @@ export const STEP_LABELS: Record<OrderStatus, string> = {
 
 const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
   aceito: 'Aceitar pedido',
-  preparando: 'Iniciar preparo',
   saiu: 'Saiu pra entrega',
   pronto: 'Pronto pra retirada',
   concluido: 'Concluir pedido',
 };
 
-/** Etapas de cada tipo de pedido, na ordem. */
+/**
+ * Etapas de cada tipo de pedido, na ordem. Aceitar já coloca o pedido na chapa:
+ * não existe mais a etapa "preparando" separada.
+ */
 export function orderFlow(type: OrderType): OrderStatus[] {
-  return type === 'pickup'
-    ? ['novo', 'aceito', 'preparando', 'pronto', 'concluido']
-    : ['novo', 'aceito', 'preparando', 'saiu', 'concluido'];
+  return type === 'pickup' ? ['novo', 'aceito', 'pronto', 'concluido'] : ['novo', 'aceito', 'saiu', 'concluido'];
+}
+
+/** Posição da etapa no fluxo. Pedidos antigos em "preparando" contam como aceitos. */
+export function flowIndex(type: OrderType, status: OrderStatus): number {
+  return orderFlow(type).indexOf(status === 'preparando' ? 'aceito' : status);
 }
 
 /** Próxima etapa do pedido, ou `null` se já foi concluído ou cancelado. */
 export function nextStatus(order: AdminOrder): OrderStatus | null {
   if (order.status === 'cancelado') return null;
   const flow = orderFlow(order.orderType);
-  const index = flow.indexOf(order.status);
+  const index = flowIndex(order.orderType, order.status);
   return index >= 0 && index < flow.length - 1 ? flow[index + 1] : null;
 }
 
@@ -70,7 +75,7 @@ export function customerMessage(order: AdminOrder, status: OrderStatus, delivery
 
   const messages: Record<OrderStatus, string> = {
     novo: '',
-    aceito: `Olá, ${firstName}! Aqui é da ${storeConfig.name}. Seu pedido ${id} foi ACEITO e já entrou na fila. Total: ${formatCurrency(order.total)}. A gente avisa cada etapa por aqui.`,
+    aceito: `Olá, ${firstName}! Aqui é da ${storeConfig.name}. Seu pedido ${id} foi ACEITO! Total: ${formatCurrency(order.total)}.\n\nE já está NA CHAPA! Estamos preparando agora. A gente avisa cada etapa por aqui.`,
     preparando: `${firstName}, seu pedido ${id} já está NA CHAPA! Estamos preparando agora.`,
     saiu: `Seu pedido ${id} SAIU PARA ENTREGA! Chega em ${deliveryEta.replace(/^~/, 'cerca de ')}. Pagamento na entrega: ${payment}.`,
     pronto: `Seu pedido ${id} está PRONTO PARA RETIRADA na ${address}. Te esperamos!`,

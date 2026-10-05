@@ -15,6 +15,7 @@ import {
   actionLabel,
   customerMessage,
   customerWhatsAppUrl,
+  flowIndex,
   nextStatus,
   orderFlow,
   withAlpha,
@@ -97,7 +98,7 @@ function OrderDetail({
     return true;
   };
   const flow = orderFlow(order.orderType);
-  const currentIndex = flow.indexOf(order.status);
+  const currentIndex = flowIndex(order.orderType, order.status);
   const cancelled = order.status === 'cancelado';
   const next = nextStatus(order);
   const message = next ? customerMessage(order, next, deliveryEta) : '';
@@ -133,7 +134,7 @@ function OrderDetail({
       </div>
 
       <div className="flex flex-col gap-[18px] p-[18px]">
-        <ol aria-label="Etapas" className="m-0 grid list-none grid-cols-5 gap-1 p-0">
+        <ol aria-label="Etapas" className="m-0 grid list-none grid-cols-4 gap-1 p-0">
           {flow.map((step, index) => {
             const reached = !cancelled && index <= currentIndex;
             const current = index === currentIndex;
