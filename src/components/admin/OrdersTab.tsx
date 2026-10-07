@@ -57,7 +57,6 @@ function useNow(intervalMs = 30_000) {
 
 interface OrderDetailProps {
   order: AdminOrder;
-  deliveryEta: string;
   saving: boolean;
   narrow: boolean;
   now: number;
@@ -75,7 +74,6 @@ const ACTION_LOCK_MS = 1500;
 
 function OrderDetail({
   order,
-  deliveryEta,
   saving,
   narrow,
   now,
@@ -101,8 +99,8 @@ function OrderDetail({
   const currentIndex = flowIndex(order.orderType, order.status);
   const cancelled = order.status === 'cancelado';
   const next = nextStatus(order);
-  const message = next ? customerMessage(order, next, deliveryEta) : '';
-  const cancelMessage = customerMessage(order, 'cancelado', deliveryEta);
+  const message = next ? customerMessage(order, next) : '';
+  const cancelMessage = customerMessage(order, 'cancelado');
   const firstName = order.customerName.split(' ')[0];
 
   return (
@@ -459,7 +457,6 @@ export function OrdersTab({ data, filter, onFilter, selectedId, onSelect, unseen
           <OrderDetail
             key={selected.id}
             order={selected}
-            deliveryEta={data.settings.deliveryEta}
             saving={data.saving}
             narrow={!wide}
             now={now}

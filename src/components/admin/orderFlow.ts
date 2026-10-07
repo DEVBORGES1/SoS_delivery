@@ -1,8 +1,6 @@
 import { storeConfig } from '../../data/storeConfig';
 import type { AdminOrder, OrderStatus, OrderType } from '../../types/order';
-import { formatCurrency } from '../../utils/currency';
 import { onlyDigits } from '../../utils/formatters';
-import { PAYMENT_METHOD_LABELS } from '../../utils/order';
 
 export const ORDER_STATUS: Record<OrderStatus, { label: string; color: string }> = {
   novo: { label: 'Novo', color: 'var(--adm-st-novo)' },
@@ -66,18 +64,17 @@ export function customerWhatsAppUrl(phone: string, text: string): string {
 }
 
 /** Mensagem enviada ao cliente quando o pedido muda de etapa. */
-export function customerMessage(order: AdminOrder, status: OrderStatus, deliveryEta: string): string {
+export function customerMessage(order: AdminOrder, status: OrderStatus): string {
   const firstName = order.customerName.trim().split(' ')[0] || 'tudo bem';
-  const payment =
-    PAYMENT_METHOD_LABELS[order.paymentMethod] + (order.changeFor ? ` (troco p/ ${order.changeFor})` : '');
+  const nextStep = order.orderType === 'pickup' ? 'estiver pronto para retirada' : 'sair para entrega';
   const address = `${storeConfig.address} — ${storeConfig.district}`;
   const id = `#${order.id}`;
 
   const messages: Record<OrderStatus, string> = {
     novo: '',
-    aceito: `Olá, ${firstName}! Aqui é da ${storeConfig.name}. Seu pedido ${id} foi ACEITO! Total: ${formatCurrency(order.total)}.\n\nE já está NA CHAPA! Estamos preparando agora. A gente avisa cada etapa por aqui.`,
+    aceito: `Olá ${firstName}! Seu pedido foi aceito, assim que ${nextStep}, avisamos.`,
     preparando: `${firstName}, seu pedido ${id} já está NA CHAPA! Estamos preparando agora.`,
-    saiu: `Seu pedido ${id} SAIU PARA ENTREGA! Chega em ${deliveryEta.replace(/^~/, 'cerca de ')}. Pagamento na entrega: ${payment}.`,
+    saiu: 'Seu pedido saiu para entrega',
     pronto: `Seu pedido ${id} está PRONTO PARA RETIRADA na ${address}. Te esperamos!`,
     concluido: `Pedido ${id} finalizado. Obrigado pela preferência, ${firstName}! Bom apetite e até a próxima.`,
     cancelado: `Olá, ${firstName}. Infelizmente não conseguimos atender seu pedido ${id} agora. Pedimos desculpas — qualquer dúvida é só responder esta mensagem.`,
