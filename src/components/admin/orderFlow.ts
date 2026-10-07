@@ -65,19 +65,21 @@ export function customerWhatsAppUrl(phone: string, text: string): string {
 
 /** Mensagem enviada ao cliente quando o pedido muda de etapa. */
 export function customerMessage(order: AdminOrder, status: OrderStatus): string {
-  const firstName = order.customerName.trim().split(' ')[0] || 'tudo bem';
+  const firstName = order.customerName.trim().split(' ')[0];
+  /** ", Juninho" ou nada, quando o cliente não informou o nome. */
+  const commaName = firstName ? `, ${firstName}` : '';
   const nextStep = order.orderType === 'pickup' ? 'estiver pronto para retirada' : 'sair para entrega';
   const address = `${storeConfig.address} — ${storeConfig.district}`;
   const id = `#${order.id}`;
 
   const messages: Record<OrderStatus, string> = {
     novo: '',
-    aceito: `Olá ${firstName}! Seu pedido foi aceito, assim que ${nextStep}, avisamos.`,
-    preparando: `${firstName}, seu pedido ${id} já está NA CHAPA! Estamos preparando agora.`,
+    aceito: `${firstName ? `Olá ${firstName}!` : 'Olá!'} Seu pedido foi aceito, assim que ${nextStep}, avisamos.`,
+    preparando: `${firstName ? `${firstName}, seu` : 'Seu'} pedido ${id} já está NA CHAPA! Estamos preparando agora.`,
     saiu: 'Seu pedido saiu para entrega',
     pronto: `Seu pedido ${id} está PRONTO PARA RETIRADA na ${address}. Te esperamos!`,
-    concluido: `Pedido ${id} finalizado. Obrigado pela preferência, ${firstName}! Bom apetite e até a próxima.`,
-    cancelado: `Olá, ${firstName}. Infelizmente não conseguimos atender seu pedido ${id} agora. Pedimos desculpas — qualquer dúvida é só responder esta mensagem.`,
+    concluido: `Pedido ${id} finalizado. Obrigado pela preferência${commaName}! Bom apetite e até a próxima.`,
+    cancelado: `Olá${commaName}. Infelizmente não conseguimos atender seu pedido ${id} agora. Pedimos desculpas — qualquer dúvida é só responder esta mensagem.`,
   };
   return messages[status];
 }
