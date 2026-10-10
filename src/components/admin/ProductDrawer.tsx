@@ -78,6 +78,26 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
       : undefined;
   const image = draft.imageUrl || getProductImage(draft.imageKey);
 
+  const addonSources = data.products.filter((item) => item.id !== draft.id && item.addons?.length);
+
+  /** Junta os adicionais de outro lanche aos atuais, pulando os que já existem (mesmo nome). */
+  const copyAddonsFrom = (sourceId: string) => {
+    const source = data.products.find((item) => item.id === sourceId);
+    if (!source?.addons?.length) return;
+    const filled = addons.filter((addon) => addon.name.trim());
+    const taken = new Set(filled.map((addon) => slugify(addon.name)));
+    // id vazio: o save gera um id que não colide com os adicionais deste lanche.
+    const copied = source.addons
+      .filter((addon) => !taken.has(slugify(addon.name)))
+      .map((addon) => ({ id: '', name: addon.name, price: priceToInput(addon.price) }));
+    setAddons([...filled, ...copied]);
+    data.notify(
+      copied.length
+        ? `${copied.length} ${copied.length === 1 ? 'adicional copiado' : 'adicionais copiados'} de ${source.name}`
+        : `${source.name} não tem adicionais novos para copiar`,
+    );
+  };
+
   const pickLocalImage = (key: string | undefined) =>
     setDraft((current) => ({ ...current, imageKey: key, imageUrl: undefined }));
 
@@ -364,6 +384,23 @@ export function ProductDrawer({ product, defaultCategory, data, onClose }: Produ
                 <Plus size={15} aria-hidden="true" /> Adicional
               </button>
             </div>
+            {addonSources.length > 0 && (
+              <select
+                aria-label="Copiar adicionais de outro lanche"
+                value=""
+                onChange={(event) => copyAddonsFrom(event.target.value)}
+                className={cn(INPUT, 'h-11 px-3')}
+              >
+                <option value="" disabled>
+                  Copiar adicionais de outro lanche…
+                </option>
+                {addonSources.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} ({item.addons!.length})
+                  </option>
+                ))}
+              </select>
+            )}
             {addons.map((addon, index) => (
               <div key={index} className="flex items-center gap-2">
                 <input
