@@ -5,10 +5,11 @@ import { useStoreSettings } from '../../../hooks/useStoreSettings';
 import type { CheckoutSectionProps, OrderType } from '../../../types/order';
 import { cn } from '../../../utils/cn';
 import { formatCurrency } from '../../../utils/currency';
-import { findZone, quoteDelivery, type DeliveryConfig, type DeliveryQuote } from '../../../utils/delivery';
-import { SelectField, TextField } from '../../ui/Input/TextField';
+import { quoteDelivery, type DeliveryConfig, type DeliveryQuote } from '../../../utils/delivery';
+import { TextField } from '../../ui/Input/TextField';
 import { RadioCard } from '../../ui/RadioCard/RadioCard';
 import { FIELD_GRID, FormSection } from '../CheckoutForm/FormSection';
+import { DistrictPicker } from './DistrictPicker';
 
 interface OrderTypeOption {
   value: OrderType;
@@ -132,23 +133,16 @@ export function DeliveryForm({ form, errors, setField }: CheckoutSectionProps) {
           <div className={cn(FIELD_GRID, 'mt-[18px]')}>
             {ADDRESS_FIELDS.map((config) =>
               config.field === 'district' && zones.length ? (
-                <SelectField
+                <DistrictPicker
                   key={config.field}
                   id={checkoutFieldId('district')}
                   label={config.label}
-                  value={findZone(zones, form.district)?.name ?? ''}
+                  zones={zones}
+                  freeDelivery={freeDelivery}
+                  value={form.district}
                   error={errors.district}
-                  onChange={(event) => setField('district', event.target.value)}
-                >
-                  <option value="" disabled>
-                    Escolha o bairro
-                  </option>
-                  {zones.map((zone) => (
-                    <option key={zone.id} value={zone.name}>
-                      {zone.name} — {freeDelivery ? 'grátis' : feeText(zone.fee)}
-                    </option>
-                  ))}
-                </SelectField>
+                  onChange={(district) => setField('district', district)}
+                />
               ) : (
                 <TextField
                   key={config.field}
