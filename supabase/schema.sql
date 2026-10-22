@@ -540,6 +540,59 @@ values
    0, 'resgate-supremo', '50% 72%', null, false, false, 9)
 on conflict (id) do nothing;
 
+-- Bairros atendidos e taxas iniciais. Só entram com a tabela vazia (primeira vez):
+-- depois disso quem manda é o painel, e rodar este arquivo de novo não recria
+-- bairro excluído nem desfaz taxa alterada.
+insert into public.delivery_zones (name, fee, sort_order)
+select v.name, v.fee, v.sort_order
+from (values
+  ('Aeroporto', 12.00, 1),
+  ('Agua Verde', 12.00, 2),
+  ('Alto Boa Vista', 10.00, 3),
+  ('Alvorada', 10.00, 4),
+  ('Amarante', 16.00, 5),
+  ('Campo Experimental', 12.00, 6),
+  ('Cantu', 10.00, 7),
+  ('Carboni', 15.00, 8),
+  ('Carelli', 15.00, 9),
+  ('Centro', 10.00, 10),
+  ('Cetrevi', 20.00, 11),
+  ('Cibrazem', 12.00, 12),
+  ('Cidade Alta', 17.00, 13),
+  ('Colina Verde', 14.00, 14),
+  ('De Carli', 10.00, 15),
+  ('Dois Pinheiros', 10.00, 16),
+  ('Farroupilha', 12.00, 17),
+  ('Floresta', 12.00, 18),
+  ('Iomere', 28.00, 19),
+  ('Jardim Canada', 12.00, 20),
+  ('Lot. Flores', 18.00, 21),
+  ('Marafom', 12.00, 22),
+  ('Matriz', 10.00, 23),
+  ('Menegola', 12.00, 24),
+  ('Morada Do Sol', 10.00, 25),
+  ('Nossa Senhora Aparecida', 12.00, 26),
+  ('Oficina', 10.00, 27),
+  ('Panazzolo', 12.00, 28),
+  ('Poente Do Sol', 20.00, 29),
+  ('Portal', 10.00, 30),
+  ('Prolar', 10.00, 31),
+  ('Quartel', 12.00, 32),
+  ('Recanto Da Natureza', 17.00, 33),
+  ('Rio Das Pedras', 22.00, 34),
+  ('Santa Gema', 17.00, 35),
+  ('Santa Lucia', 12.00, 36),
+  ('Santa Tereza', 10.00, 37),
+  ('Santos Drumont', 12.00, 38),
+  ('Sesi', 12.00, 39),
+  ('São Cristovão', 10.00, 40),
+  ('São Francisco', 10.00, 41),
+  ('Universitario', 14.00, 42),
+  ('Vila Verde', 10.00, 43),
+  ('Vinhedo', 10.00, 44)
+) as v (name, fee, sort_order)
+where not exists (select 1 from public.delivery_zones);
+
 -- Selo que a capa já mostrava, para o lanche em destaque que ainda não tem um
 -- (quem apagou o selo pelo painel fica com '' e não é afetado).
 update public.products set cover_sticker = 'Blend na brasa' where featured and cover_sticker is null;
