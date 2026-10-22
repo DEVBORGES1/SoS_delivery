@@ -38,7 +38,7 @@ Em `/admin`, com e-mail e senha, a loja cuida de tudo sem mexer no código:
 
 O navegador não acessa a impressora USB. Quem imprime é o **agente de impressão** ([`printer-agent/`](printer-agent/README.md)), um `.exe` que fica aberto no computador da loja: o painel manda os dados do pedido para `http://127.0.0.1:3333`, e o agente monta a comanda em ESC/POS (58mm) e imprime pelo driver do Windows. A comanda mostra o bairro e "Taxa de entrega: GRÁTIS" quando a promoção valeu para o pedido (agente 1.1.0 ou mais novo; o antigo continua imprimindo, só sem essa linha). O banco guarda a situação de cada comanda (`print_status`), o que impede impressão duplicada mesmo com duplo clique ou duas abas abertas.
 
-Instalação: `cd printer-agent && npm install && npm run build`, copie `printer-agent/dist/` para o computador da loja e siga o `LEIA-ME.txt`. Se o painel for aberto por outro endereço (domínio próprio, por exemplo), adicione-o em `allowedOrigins` no `config.json` do agente.
+Instalação: baixe o zip pronto em **Releases** no GitHub ("Agente de impressão vX.Y.Z", gerado pelo workflow `printer-agent-release.yml` num Windows), extraia no computador da loja e siga o `LEIA-ME.txt`. Para gerar à mão: `cd printer-agent && npm install && npm run build` num Windows e copie `printer-agent/dist/`. Se o painel for aberto por outro endereço (domínio próprio, por exemplo), adicione-o em `allowedOrigins` no `config.json` do agente.
 
 ### Taxa de entrega e entrega grátis
 

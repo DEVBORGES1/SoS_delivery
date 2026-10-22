@@ -14,7 +14,14 @@ comanda em ESC/POS (58mm, 32 colunas) e manda em modo RAW pelo driver já instal
 
 ## Uso no computador da loja
 
-1. `npm install` e `npm run build` (aqui, no computador de desenvolvimento) geram `dist/`.
+O jeito mais fácil: baixe o zip pronto em **Releases** no GitHub ("Agente de impressão vX.Y.Z"), extraia e siga o
+`LEIA-ME.txt` (instalação nova) ou o passo a passo do release (atualização). O workflow
+[`printer-agent-release.yml`](../.github/workflows/printer-agent-release.yml) gera esse zip num Windows sempre que o
+agente muda na `main`; a versão vem do `package.json`.
+
+Para gerar à mão (num Windows com Node.js 22.18+):
+
+1. `npm install` e `npm run build` geram `dist/`.
 2. Copie a pasta `dist/` para o computador da loja (ex.: `C:\SOS-Impressora`) e siga o `LEIA-ME.txt`.
 
 Arquivos criados ao lado do `.exe`: `config.json` (impressora, tabela de acentos, sites autorizados),

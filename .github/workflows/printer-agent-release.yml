@@ -1,0 +1,90 @@
+# Gera o agente de impressão (sos-impressora.exe) num Windows e publica o zip na
+# página Releases do repositório. Para baixar de qualquer computador:
+#   GitHub → Releases → "Agente de impressão vX.Y.Z" → sos-impressora-X.Y.Z.zip
+#
+# Roda sozinho quando o código do agente muda na main. Para gerar na hora:
+# aba Actions → "Agente de impressão" → Run workflow.
+# A versão vem de printer-agent/package.json: suba a versão para criar um release
+# novo; sem subir, o zip do release da versão atual é substituído.
+name: Agente de impressão
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'printer-agent/**'
+      - '.github/workflows/printer-agent-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: printer-agent-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: printer-agent
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: printer-agent/package-lock.json
+
+      - name: Instala as dependências
+        run: npm ci
+
+      - name: Testes
+        run: npm test
+
+      - name: Gera o sos-impressora.exe
+        run: npm run build
+
+      - name: Compacta a pasta dist
+        id: pack
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $zip = "sos-impressora-$version.zip"
+          New-Item -ItemType Directory -Force -Path SOS-Impressora | Out-Null
+          Copy-Item dist/* SOS-Impressora/
+          Compress-Archive -Path SOS-Impressora -DestinationPath $zip -Force
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "zip=$zip" >> $env:GITHUB_OUTPUT
+          Get-FileHash dist/sos-impressora.exe -Algorithm SHA256 | Format-List
+
+      - name: Publica em Releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.pack.outputs.version }}
+          ZIP: ${{ steps.pack.outputs.zip }}
+        run: |
+          tag="agente-v$VERSION"
+          notes="Agente de impressão das comandas (Windows), versão $VERSION.
+
+          **Atualizar** (computador que já tem o agente):
+          1. Baixe o $ZIP abaixo e extraia.
+          2. Feche a janela preta do agente (ou finalize sos-impressora.exe no Gerenciador de Tarefas).
+          3. Copie só o sos-impressora.exe para a pasta do agente (ex.: C:\\SOS-Impressora), substituindo o antigo. Não apague config.json nem impressas.json.
+          4. Abra o sos-impressora.exe (se o Windows avisar: Mais informações → Executar assim mesmo).
+          5. No painel, Loja → Impressora deve mostrar \"Conectado · v$VERSION\". Clique em Imprimir teste.
+
+          **Instalação nova:** extraia e siga o LEIA-ME.txt.
+
+          Gerado a partir do commit $GITHUB_SHA."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$ZIP" --clobber
+            gh release edit "$tag" --notes "$notes" --latest
+          else
+            gh release create "$tag" "$ZIP" --title "Agente de impressão v$VERSION" --notes "$notes" --target "$GITHUB_SHA" --latest
+          fi
+          echo "Publicado: https://github.com/$GITHUB_REPOSITORY/releases/tag/$tag"
