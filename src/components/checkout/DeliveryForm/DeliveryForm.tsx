@@ -48,10 +48,7 @@ function deliveryFeeHint({ zones, fallbackFee, freeDelivery }: DeliveryConfig): 
 
 function FreeDeliveryBanner() {
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-control border-[1.5px] border-whatsapp bg-whatsapp/10 px-4 py-3">
-      <span aria-hidden="true" className="text-xl">
-        🎉
-      </span>
+    <div className="mt-4 rounded-control border-[1.5px] border-whatsapp bg-whatsapp/10 px-4 py-3">
       <p className="text-[15px] leading-snug">
         <b className="text-success-ink">Promoção: entrega grátis</b> para todos os bairros atendidos.
       </p>
