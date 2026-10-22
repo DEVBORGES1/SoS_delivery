@@ -25,6 +25,12 @@ export interface OrderTicket {
   items: TicketItem[];
   subtotal: number;
   deliveryFee: number;
+  /** Bairro da entrega. Opcional: painéis antigos não mandam. */
+  district: string;
+  /** Taxa cadastrada do bairro (antes da promoção); `null` quando não informada. */
+  deliveryFeeOriginal: number | null;
+  /** Promoção de entrega grátis aplicada ao pedido. */
+  freeDelivery: boolean;
   total: number;
   paymentMethod: PaymentMethod;
   changeFor: string;
@@ -70,6 +76,14 @@ function amount(source: Source, field: string): number {
     throw new ValidationError(`Valor inválido em ${field}`);
   }
   return Math.round(value * 100) / 100;
+}
+
+/** Campo opcional true/false (ausente = false). */
+function flag(source: Source, field: string): boolean {
+  const value = source[field];
+  if (value === undefined || value === null) return false;
+  if (typeof value !== 'boolean') throw new ValidationError(`Campo ${field} deve ser true/false`);
+  return value;
 }
 
 /** Datas entre 2020 e 2100, em milissegundos. */
@@ -127,6 +141,12 @@ export function parseTicket(value: unknown): OrderTicket {
     items: items.map(item),
     subtotal: amount(value, 'subtotal'),
     deliveryFee: amount(value, 'deliveryFee'),
+    district: text(value, 'district', 60),
+    deliveryFeeOriginal:
+      value.deliveryFeeOriginal === undefined || value.deliveryFeeOriginal === null
+        ? null
+        : amount(value, 'deliveryFeeOriginal'),
+    freeDelivery: flag(value, 'freeDelivery'),
     total: amount(value, 'total'),
     paymentMethod,
     changeFor: text(value, 'changeFor', 20),

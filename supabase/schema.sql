@@ -168,6 +168,41 @@ create policy "Admins gerenciam promoções" on public.promotions
 grant select on public.promotions to anon, authenticated;
 grant insert, update, delete on public.promotions to authenticated;
 
+-- Taxas de entrega por bairro -------------------------------------------------------
+-- Cada bairro atendido tem a sua taxa. Com pelo menos um bairro ativo, o cliente
+-- escolhe o bairro no checkout e o banco cobra a taxa dele; sem nenhum bairro
+-- ativo, vale a taxa única de store_settings.delivery_fee.
+create table if not exists public.delivery_zones (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (length(trim(name)) between 1 and 60),
+  fee numeric(10, 2) not null default 0 check (fee >= 0 and fee <= 1000),
+  active boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create unique index if not exists delivery_zones_name_idx on public.delivery_zones (lower(trim(name)));
+
+alter table public.delivery_zones enable row level security;
+
+drop policy if exists "Todos leem os bairros" on public.delivery_zones;
+create policy "Todos leem os bairros" on public.delivery_zones
+  for select to anon, authenticated using (true);
+
+drop policy if exists "Admins gerenciam bairros" on public.delivery_zones;
+create policy "Admins gerenciam bairros" on public.delivery_zones
+  for all to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+
+grant select on public.delivery_zones to anon, authenticated;
+grant insert, update, delete on public.delivery_zones to authenticated;
+
+-- Promoção de entrega grátis: vale para todos os bairros enquanto estiver ligada.
+-- Não mexe nas taxas cadastradas: o create_order só cobra 0 enquanto ela vale.
+alter table public.store_settings
+  add column if not exists free_delivery_enabled boolean not null default false,
+  add column if not exists free_delivery_updated_at timestamptz;
+
 -- Pedidos ---------------------------------------------------------------------------
 -- O site grava cada pedido pela função create_order (abaixo). Só administradores
 -- leem ou alteram a tabela: nome, telefone e endereço dos clientes ficam protegidos.
@@ -212,16 +247,44 @@ create policy "Admins excluem pedidos" on public.orders
 
 grant select, update, delete on public.orders to authenticated;
 
+-- O que foi cobrado de entrega fica gravado no pedido: mudar a taxa do bairro ou
+-- a promoção depois não altera pedidos já feitos.
+alter table public.orders
+  add column if not exists delivery_district text not null default '' check (length(delivery_district) <= 60),
+  -- Taxa cadastrada no momento do pedido (do bairro ou a taxa única); null na retirada
+  add column if not exists delivery_fee_original numeric(10, 2) check (delivery_fee_original >= 0),
+  add column if not exists free_delivery boolean not null default false;
+
+-- A primeira versão devolvia só o número do pedido (bigint); trocar o tipo exige recriar.
+do $$
+begin
+  if to_regprocedure('public.create_order(jsonb)') is not null
+     and (select prorettype from pg_proc where oid = to_regprocedure('public.create_order(jsonb)')) = 'bigint'::regtype then
+    drop function public.create_order(jsonb);
+  end if;
+end;
+$$;
+
+-- A taxa de entrega e o total são calculados aqui, com o bairro e a promoção do
+-- banco; os valores de entrega mandados pelo site são ignorados. Devolve o número
+-- do pedido e os valores gravados, que o site usa na mensagem do WhatsApp.
 create or replace function public.create_order(payload jsonb)
-returns bigint
+returns jsonb
 language plpgsql
 volatile
 security definer
 set search_path = ''
 as $$
 declare
-  new_id bigint;
+  saved public.orders;
   phone text := left(coalesce(payload ->> 'customer_phone', ''), 20);
+  is_delivery boolean := payload ->> 'order_type' = 'delivery';
+  wanted_district text := left(trim(coalesce(payload ->> 'district', '')), 60);
+  zone_name text := '';
+  original_fee numeric(10, 2);
+  free_applied boolean := false;
+  charged_fee numeric(10, 2) := 0;
+  items_total numeric(10, 2) := (payload ->> 'subtotal')::numeric;
 begin
   -- Freio contra envios em massa: no máximo 5 pedidos por telefone a cada 10 minutos.
   if (
@@ -231,9 +294,30 @@ begin
     raise exception 'Muitos pedidos seguidos deste telefone. Tente de novo em alguns minutos.';
   end if;
 
+  if is_delivery then
+    if exists (select 1 from public.delivery_zones where active) then
+      select z.name, z.fee into zone_name, original_fee
+        from public.delivery_zones z
+       where z.active and lower(trim(z.name)) = lower(wanted_district);
+      if not found then
+        raise exception using
+          message = format('Não entregamos no bairro "%s". Escolha um dos bairros atendidos.', wanted_district),
+          hint = 'delivery_zone';
+      end if;
+    else
+      select s.delivery_fee into original_fee from public.store_settings s where s.id = 1;
+      original_fee := coalesce(original_fee, 0);
+      zone_name := wanted_district;
+    end if;
+    select s.free_delivery_enabled into free_applied from public.store_settings s where s.id = 1;
+    free_applied := coalesce(free_applied, false);
+    charged_fee := case when free_applied then 0 else original_fee end;
+  end if;
+
   insert into public.orders (
     customer_name, customer_phone, order_type, address, reference, payment_method,
-    change_for, notes, items, subtotal, delivery_fee, total, history
+    change_for, notes, items, subtotal, delivery_fee, total, history,
+    delivery_district, delivery_fee_original, free_delivery
   ) values (
     left(trim(payload ->> 'customer_name'), 80),
     phone,
@@ -244,14 +328,25 @@ begin
     left(coalesce(payload ->> 'change_for', ''), 20),
     left(coalesce(payload ->> 'notes', ''), 300),
     payload -> 'items',
-    (payload ->> 'subtotal')::numeric,
-    coalesce((payload ->> 'delivery_fee')::numeric, 0),
-    (payload ->> 'total')::numeric,
-    jsonb_build_array(jsonb_build_object('s', 'novo', 'at', floor(extract(epoch from now()) * 1000)))
+    items_total,
+    charged_fee,
+    items_total + charged_fee,
+    jsonb_build_array(jsonb_build_object('s', 'novo', 'at', floor(extract(epoch from now()) * 1000))),
+    zone_name,
+    original_fee,
+    free_applied
   )
-  returning id into new_id;
+  returning * into saved;
 
-  return new_id;
+  return jsonb_build_object(
+    'id', saved.id,
+    'subtotal', saved.subtotal,
+    'delivery_fee', saved.delivery_fee,
+    'delivery_fee_original', saved.delivery_fee_original,
+    'free_delivery', saved.free_delivery,
+    'delivery_district', saved.delivery_district,
+    'total', saved.total
+  );
 end;
 $$;
 

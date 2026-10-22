@@ -1,7 +1,7 @@
 {
   "name": "sos-impressora",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Agente local que imprime as comandas do painel S.O.S Delivery na impressora térmica (ESC/POS).",
   "type": "module",
   "engines": {

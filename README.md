@@ -30,14 +30,19 @@ Em `/admin`, com e-mail e senha, a loja cuida de tudo sem mexer no código:
 - **Visão geral:** abrir/fechar a loja na hora (ou automático pelo horário), contadores e o aviso em faixa amarela no topo do site.
 - **Cardápio:** busca, filtro por categoria, preço editável direto na lista, disponível/esgotado, e edição completa (foto enviada do celular, selo, adicionais, destaque na capa, prévia do card).
 - **Promoções:** desconto em % ou preço final, com validade; no site o preço normal aparece riscado.
-- **Loja:** taxa de entrega, WhatsApp que recebe os pedidos, horário de cada dia, entrega/retirada e tempos.
+- **Taxas de entrega:** bairros atendidos com a taxa de cada um (ativar/desativar, editar, excluir) e a **promoção de entrega grátis**: um botão que zera a entrega de todos os bairros sem mexer nas taxas cadastradas. Sem nenhum bairro ativo, vale a taxa única.
+- **Loja:** WhatsApp que recebe os pedidos, horário de cada dia, entrega/retirada e tempos.
 - **Impressora (Loja → Impressora):** ao aceitar o pedido, a comanda sai na impressora térmica da loja. Tem status (🟢/🔴 no topo do painel), impressão automática liga/desliga, escolha da impressora, tabela de acentos e "Imprimir teste". Se a impressão falhar, o pedido continua aceito e aparece "Tentar novamente".
 
 ### Impressão da comanda
 
-O navegador não acessa a impressora USB. Quem imprime é o **agente de impressão** ([`printer-agent/`](printer-agent/README.md)), um `.exe` que fica aberto no computador da loja: o painel manda os dados do pedido para `http://127.0.0.1:3333`, e o agente monta a comanda em ESC/POS (58mm) e imprime pelo driver do Windows. O banco guarda a situação de cada comanda (`print_status`), o que impede impressão duplicada mesmo com duplo clique ou duas abas abertas.
+O navegador não acessa a impressora USB. Quem imprime é o **agente de impressão** ([`printer-agent/`](printer-agent/README.md)), um `.exe` que fica aberto no computador da loja: o painel manda os dados do pedido para `http://127.0.0.1:3333`, e o agente monta a comanda em ESC/POS (58mm) e imprime pelo driver do Windows. A comanda mostra o bairro e "Taxa de entrega: GRÁTIS" quando a promoção valeu para o pedido (agente 1.1.0 ou mais novo; o antigo continua imprimindo, só sem essa linha). O banco guarda a situação de cada comanda (`print_status`), o que impede impressão duplicada mesmo com duplo clique ou duas abas abertas.
 
 Instalação: `cd printer-agent && npm install && npm run build`, copie `printer-agent/dist/` para o computador da loja e siga o `LEIA-ME.txt`. Se o painel for aberto por outro endereço (domínio próprio, por exemplo), adicione-o em `allowedOrigins` no `config.json` do agente.
+
+### Taxa de entrega e entrega grátis
+
+Quem decide a taxa é o banco: a função `create_order` busca a taxa do bairro escolhido (tabela `delivery_zones`) e a promoção (`store_settings.free_delivery_enabled`) e grava no pedido o bairro, a taxa cobrada, a taxa original e se a entrega grátis foi aplicada. O valor que o site manda é ignorado, e um bairro inativo ou fora da lista é recusado. Ligar ou desligar a promoção só muda essa coluna: as taxas dos bairros e os pedidos já feitos não são alterados. O checkout relê a taxa ao abrir, ao voltar para a aba, a cada minuto e antes de enviar; se ela mudou com a página aberta, avisa o cliente e mostra o novo total em vez de enviar.
 
 Os dados ficam no Supabase. O site lê o banco uma vez por visita; se o banco não responder em 5 s, usa os dados do código. O pedido sempre vai para o WhatsApp da loja, mesmo que o banco esteja fora do ar (nesse caso ele só não aparece no painel).
 
@@ -69,7 +74,7 @@ O agendamento só roda a partir da branch `main`. O GitHub desativa agendamentos
 
 | O quê | Onde |
 | --- | --- |
-| Horários, abrir/fechar, entrega, preços, disponibilidade, adicionais | Painel `/admin` |
+| Horários, abrir/fechar, entrega, preços, disponibilidade, adicionais, bairros e taxas, entrega grátis | Painel `/admin` |
 | WhatsApp, Instagram, endereço | `src/data/storeConfig.ts` (`storeConfig`) |
 | Horários e entrega padrão (sem Supabase) | `src/data/storeConfig.ts` (`defaultStoreSettings`) |
 | Cardápio padrão (sem Supabase) | `src/data/products.ts` |

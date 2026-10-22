@@ -223,6 +223,55 @@ export function Drawer({ title, onClose, footer, width, children }: DrawerProps)
   );
 }
 
+interface ConfirmDialogProps {
+  title: string;
+  children: ReactNode;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  busy?: boolean;
+  /** `danger` = botão vermelho (desligar, apagar); `success` = verde (ligar). */
+  tone: 'danger' | 'success';
+}
+
+/** Janela que pede confirmação antes de uma mudança que vale para o site todo. */
+export function ConfirmDialog({ title, children, confirmLabel, onConfirm, onCancel, busy, tone }: ConfirmDialogProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  useDialog(true, onCancel, panelRef);
+
+  return (
+    <div className="fixed inset-0 z-70 flex items-end justify-center min-[640px]:items-center min-[640px]:p-6">
+      <div aria-hidden="true" onClick={onCancel} className="absolute inset-0 bg-(--adm-overlay)" />
+      <div
+        ref={panelRef}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+        tabIndex={-1}
+        className="relative w-full rounded-t-[22px] bg-(--adm-card) p-6 text-(--adm-ink) shadow-[0_20px_60px_-20px_rgba(0,0,0,.45)] outline-none min-[640px]:max-w-[460px] min-[640px]:rounded-[22px]"
+      >
+        <h2 id="confirm-title" className="m-0 font-display text-[26px] leading-[1.1] font-normal uppercase">
+          {title}
+        </h2>
+        <div className={cn('mt-2 text-[15px] leading-normal', MUTED)}>{children}</div>
+        <div className="mt-5 flex flex-wrap justify-end gap-2.5">
+          <button type="button" onClick={onCancel} className={cn(BTN_OUTLINE, 'h-[50px] rounded-xl px-[18px]')}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={busy}
+            className={cn(BTN_PRIMARY, 'h-[50px] px-[22px]', tone === 'success' && 'bg-[#178a45]')}
+          >
+            {busy ? 'SALVANDO…' : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface ConfirmButtonProps {
   label: string;
   confirmLabel: string;

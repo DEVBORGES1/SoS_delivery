@@ -1,7 +1,7 @@
 import { getProductImage } from '../data/productImages';
 import type { AdminOrder, OrderHistoryEntry, OrderStatus, PaymentMethod, PrintStatus, SavedOrderLine } from '../types/order';
 import type { Addon, DiscountType, Product, Promotion } from '../types/product';
-import type { DayHours, StoreSettings, StoreStatusOverride, Weekday } from '../types/store';
+import type { DayHours, DeliveryZone, StoreSettings, StoreStatusOverride, Weekday } from '../types/store';
 
 /** Linha da tabela `products`. */
 export interface ProductRow {
@@ -34,6 +34,17 @@ export interface StoreSettingsRow {
   whatsapp?: string | null;
   banner_enabled?: boolean | null;
   banner_text?: string | null;
+  /** Só leitura aqui: o painel liga e desliga pelo `setFreeDelivery`, sem regravar o resto. */
+  free_delivery_enabled?: boolean | null;
+}
+
+/** Linha da tabela `delivery_zones`. */
+export interface DeliveryZoneRow {
+  id: string;
+  name: string;
+  fee: number | string;
+  active: boolean;
+  sort_order: number;
 }
 
 /** Linha da tabela `promotions`. */
@@ -65,6 +76,10 @@ export interface OrderRow {
   delivery_fee: number | string;
   total: number | string;
   history: OrderHistoryEntry[] | null;
+  /** Colunas da entrega por bairro: ausentes em bancos sem o schema.sql atualizado. */
+  delivery_district?: string | null;
+  delivery_fee_original?: number | string | null;
+  free_delivery?: boolean | null;
   /** Colunas da impressão: ausentes enquanto o schema.sql atualizado não foi rodado. */
   print_status?: PrintStatus | null;
   print_error?: string | null;
@@ -163,6 +178,26 @@ export function promotionToRow(promotion: Promotion): PromotionRow {
   };
 }
 
+export function zoneFromRow(row: DeliveryZoneRow): DeliveryZone {
+  return {
+    id: row.id,
+    name: row.name,
+    fee: Number(row.fee) || 0,
+    active: row.active,
+    sortOrder: row.sort_order ?? 0,
+  };
+}
+
+export function zoneToRow(zone: DeliveryZone): DeliveryZoneRow {
+  return {
+    id: zone.id,
+    name: zone.name.trim(),
+    fee: zone.fee,
+    active: zone.active,
+    sort_order: zone.sortOrder,
+  };
+}
+
 export function settingsFromRow(row: StoreSettingsRow, fallback: StoreSettings): StoreSettings {
   const weeklyHours = sanitizeWeeklyHours(row.weekly_hours);
   return {
@@ -171,6 +206,7 @@ export function settingsFromRow(row: StoreSettingsRow, fallback: StoreSettings):
     deliveryEnabled: row.delivery_enabled ?? fallback.deliveryEnabled,
     pickupEnabled: row.pickup_enabled ?? fallback.pickupEnabled,
     deliveryFee: Number(row.delivery_fee) || 0,
+    freeDeliveryEnabled: row.free_delivery_enabled ?? false,
     deliveryEta: row.delivery_eta || fallback.deliveryEta,
     pickupEta: row.pickup_eta || fallback.pickupEta,
     whatsapp: row.whatsapp || fallback.whatsapp,
@@ -210,6 +246,9 @@ export function orderFromRow(row: OrderRow): AdminOrder {
     items: Array.isArray(row.items) ? row.items : [],
     subtotal: Number(row.subtotal) || 0,
     deliveryFee: Number(row.delivery_fee) || 0,
+    deliveryDistrict: row.delivery_district ?? '',
+    deliveryFeeOriginal: row.delivery_fee_original == null ? null : Number(row.delivery_fee_original) || 0,
+    freeDelivery: row.free_delivery === true,
     total: Number(row.total) || 0,
     history: Array.isArray(row.history) ? row.history : [],
     printStatus: row.print_status && PRINT_STATUSES.has(row.print_status) ? row.print_status : 'none',

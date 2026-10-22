@@ -296,9 +296,17 @@ function OrderDetail({
             </div>
             {order.orderType === 'delivery' && (
               <div className={cn('flex justify-between', MUTED)}>
-                <span>Entrega</span>
-                <span>{order.deliveryFee ? formatCurrency(order.deliveryFee) : 'Grátis'}</span>
+                <span>Entrega{order.deliveryDistrict ? ` · ${order.deliveryDistrict}` : ''}</span>
+                <span>
+                  {order.freeDelivery && !!order.deliveryFeeOriginal && (
+                    <s className="mr-1.5">{formatCurrency(order.deliveryFeeOriginal)}</s>
+                  )}
+                  {order.deliveryFee ? formatCurrency(order.deliveryFee) : 'Grátis'}
+                </span>
               </div>
+            )}
+            {order.orderType === 'delivery' && order.freeDelivery && (
+              <div className="text-[13px] font-bold text-(--adm-green-text)">Promoção de entrega grátis aplicada.</div>
             )}
             <div className="mt-1 flex justify-between text-[17px] font-extrabold">
               <span>Total</span>

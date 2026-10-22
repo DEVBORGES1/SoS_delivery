@@ -28,12 +28,23 @@ describe('validação do POST /print', () => {
     ['total negativo', (body) => ({ ...body, ticket: { ...body.ticket, total: -5 } })],
     ['data absurda', (body) => ({ ...body, ticket: { ...body.ticket, createdAt: 12 } })],
     ['reprint que não é booleano', (body) => ({ ...body, reprint: 'sim' })],
+    ['entrega grátis que não é booleano', (body) => ({ ...body, ticket: { ...body.ticket, freeDelivery: 'sim' } })],
+    ['taxa original negativa', (body) => ({ ...body, ticket: { ...body.ticket, deliveryFeeOriginal: -1 } })],
+    ['bairro enorme', (body) => ({ ...body, ticket: { ...body.ticket, district: 'b'.repeat(61) } })],
   ];
   for (const [name, build] of invalid) {
     it(`recusa: ${name}`, () => {
       assert.throws(() => parsePrintRequest(build(valid())), ValidationError);
     });
   }
+
+  it('aceita comanda de painel antigo, sem os campos da entrega grátis', () => {
+    const { district: _district, deliveryFeeOriginal: _original, freeDelivery: _free, ...ticket } = deliveryTicket();
+    const request = parsePrintRequest({ orderId: 1025, ticket });
+    assert.equal(request.ticket.freeDelivery, false);
+    assert.equal(request.ticket.district, '');
+    assert.equal(request.ticket.deliveryFeeOriginal, null);
+  });
 
   it('limpa caracteres de controle (não deixa injetar comandos ESC/POS)', () => {
     const body = valid();

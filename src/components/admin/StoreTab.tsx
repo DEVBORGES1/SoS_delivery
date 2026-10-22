@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import type { DayHours, StoreSettings, Weekday } from '../../types/store';
 import { cn } from '../../utils/cn';
-import { formatCurrency } from '../../utils/currency';
 import { formatWhatsappDisplay, onlyDigits } from '../../utils/formatters';
 import { WEEK_ORDER, formatClock, parseClock, weekdayLabel } from '../../utils/storeHours';
-import { parsePrice, priceToInput } from './adminFormat';
-import { BTN_PRIMARY, CARD, CARD_PAD, Field, INPUT, MUTED, PrefixedInput, Switch } from './adminUi';
+import { BTN_PRIMARY, CARD, CARD_PAD, Field, INPUT, MUTED, Switch } from './adminUi';
 import { PrinterSettings } from './PrinterControls';
 import { NotificationSettings } from './SoundControls';
 import type { AdminData } from './useAdminData';
+import { useCommitField } from './useCommitField';
 
 interface DayDraft {
   day: Weekday;
@@ -51,22 +50,6 @@ function fromDrafts(drafts: DayDraft[]): { weeklyHours: DayHours[]; error?: stri
   return { weeklyHours };
 }
 
-/** Campo de texto que grava ao sair do campo (ou com Enter), como no mockup. */
-function useCommitField(current: string, commit: (value: string) => void) {
-  const [draft, setDraft] = useState<string | null>(null);
-  return {
-    value: draft ?? current,
-    onChange: (event: { target: { value: string } }) => setDraft(event.target.value),
-    onBlur: () => {
-      if (draft !== null && draft !== current) commit(draft);
-      setDraft(null);
-    },
-    onKeyDown: (event: { key: string; currentTarget: HTMLInputElement }) => {
-      if (event.key === 'Enter') event.currentTarget.blur();
-    },
-  };
-}
-
 export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () => void }) {
   const { settings, saveSettings, notify } = data;
   const [days, setDays] = useState<DayDraft[] | null>(null);
@@ -74,11 +57,6 @@ export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () =
 
   const save = (patch: Partial<StoreSettings>, text: string) => void saveSettings(patch, text);
 
-  const feeField = useCommitField(priceToInput(settings.deliveryFee), (value) => {
-    const fee = parsePrice(value);
-    if (fee === null) return notify('Taxa inválida. Ex.: 5,00', 'error');
-    save({ deliveryFee: fee }, `Taxa de entrega: ${fee ? formatCurrency(fee) : 'grátis'}`);
-  });
   const whatsappField = useCommitField(settings.whatsapp, (value) => {
     const digits = onlyDigits(value);
     if (!/^\d{12,13}$/.test(digits)) return notify('WhatsApp inválido: use DDI + DDD + número, ex.: 5549988083394', 'error');
@@ -103,9 +81,6 @@ export function StoreTab({ data, onSignOut }: { data: AdminData; onSignOut: () =
   return (
     <div className="flex max-w-[720px] flex-col gap-4">
       <section className={cn(CARD, CARD_PAD, 'grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-4')}>
-        <Field id="s-fee" label="Taxa de entrega" hint="Use 0 para frete grátis.">
-          <PrefixedInput id="s-fee" prefix="R$" inputMode="decimal" {...feeField} />
-        </Field>
         <Field id="s-wa" label="WhatsApp que recebe os pedidos" hint="Com DDI + DDD, só números.">
           <input
             id="s-wa"

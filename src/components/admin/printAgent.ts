@@ -64,6 +64,12 @@ export interface OrderTicket {
   items: { quantity: number; name: string; addons: string[]; note: string }[];
   subtotal: number;
   deliveryFee: number;
+  /** Bairro da entrega ('' na retirada). */
+  district: string;
+  /** Taxa cadastrada do bairro; `null` na retirada ou em pedidos antigos. */
+  deliveryFeeOriginal: number | null;
+  /** Promoção de entrega grátis aplicada. */
+  freeDelivery: boolean;
   total: number;
   paymentMethod: PaymentMethod;
   changeFor: string;
@@ -175,6 +181,9 @@ export function ticketFromOrder(order: AdminOrder): OrderTicket {
     })),
     subtotal: order.subtotal,
     deliveryFee: order.deliveryFee,
+    district: order.deliveryDistrict.slice(0, 60),
+    deliveryFeeOriginal: order.deliveryFeeOriginal,
+    freeDelivery: order.freeDelivery,
     total: order.total,
     paymentMethod: order.paymentMethod,
     changeFor: order.changeFor.slice(0, 20),

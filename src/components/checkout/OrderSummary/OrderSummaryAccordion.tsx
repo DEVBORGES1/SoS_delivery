@@ -4,7 +4,8 @@ import { cn } from '../../../utils/cn';
 import { formatCurrency } from '../../../utils/currency';
 import { pluralizeItems } from '../../../utils/formatters';
 import { calculateItemCount, calculateLineTotal } from '../../../utils/pricing';
-import { addonsText, feeLabel, feeValue, type OrderSummaryProps } from './summaryFormat';
+import { DeliveryFeeValue } from './DeliveryFeeValue';
+import { addonsText, deliverySavings, feeLabel, type OrderSummaryProps } from './summaryFormat';
 
 const PANEL_ID = 'order-summary-items';
 
@@ -12,6 +13,7 @@ const PANEL_ID = 'order-summary-items';
 export function OrderSummaryAccordion({ items, totals, orderType }: OrderSummaryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const itemCount = calculateItemCount(items);
+  const savings = deliverySavings(totals);
 
   return (
     <div className="overflow-hidden rounded-[18px] border border-line bg-surface lg:hidden">
@@ -46,8 +48,16 @@ export function OrderSummaryAccordion({ items, totals, orderType }: OrderSummary
           ))}
           <div className="flex justify-between text-sm text-muted">
             <span>{feeLabel(orderType)}</span>
-            <span>{feeValue(totals)}</span>
+            <span>
+              <DeliveryFeeValue totals={totals} orderType={orderType} />
+            </span>
           </div>
+          {savings > 0 && (
+            <div className="flex justify-between text-sm font-bold text-success-ink">
+              <span>Economia na entrega</span>
+              <span>{formatCurrency(savings)}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

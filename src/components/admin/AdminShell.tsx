@@ -67,6 +67,8 @@ interface AdminShellProps {
   newOrders: number;
   livePromos: number;
   statusOverride: StoreStatusOverride;
+  /** Promoção de entrega grátis ligada: aparece no topo e na aba Taxas. */
+  freeDelivery: boolean;
   savedAt: Date | null;
   toast: Toast | null;
   onSignOut: () => void;
@@ -79,6 +81,7 @@ export function AdminShell({
   newOrders,
   livePromos,
   statusOverride,
+  freeDelivery,
   savedAt,
   toast,
   onSignOut,
@@ -120,6 +123,11 @@ export function AdminShell({
                 )}
               >
                 {item.label}
+                {item.id === 'fees' && freeDelivery && (
+                  <span className="rounded-full bg-[#178a45] px-2 py-px text-[11px] font-extrabold tracking-[.04em] text-white">
+                    GRÁTIS
+                  </span>
+                )}
                 {count > 0 && (
                   <span
                     className={cn(
@@ -178,6 +186,17 @@ export function AdminShell({
                 <span className="size-[7px] rounded-full bg-[#178a45]" />
                 {savedLabel}
               </span>
+              {freeDelivery && (
+                <button
+                  type="button"
+                  onClick={() => onTab('fees')}
+                  title="Promoção de entrega grátis ativa"
+                  className="flex h-10 cursor-pointer items-center gap-1.5 rounded-[10px] bg-[#178a45] px-3 text-[13px] font-extrabold whitespace-nowrap text-white max-[639px]:hidden"
+                >
+                  <span className="size-[7px] rounded-full bg-white" />
+                  Entrega grátis
+                </button>
+              )}
               <PrinterStatusButton
                 onOpenSettings={() => {
                   onTab('store');
@@ -204,7 +223,7 @@ export function AdminShell({
 
       <nav
         aria-label="Painel"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-(--adm-chrome-line) bg-(--adm-chrome) px-1.5 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] min-[960px]:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-(--adm-chrome-line) bg-(--adm-chrome) px-1.5 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] min-[960px]:hidden"
       >
         {TABS.map((item) => {
           const on = item.id === tab;
@@ -222,6 +241,14 @@ export function AdminShell({
             >
               <span className={cn('size-1.5 rounded-full', on ? 'bg-[#f2b53a]' : 'bg-transparent')} />
               {item.short}
+              {item.id === 'fees' && freeDelivery && (
+                <span
+                  aria-label="entrega grátis ativa"
+                  className="absolute top-1.5 right-[calc(50%-24px)] rounded-full bg-[#178a45] px-[5px] text-[10px] leading-[16px] font-extrabold text-white"
+                >
+                  R$0
+                </span>
+              )}
               {alert > 0 && (
                 <span className="absolute top-1.5 right-[calc(50%-26px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-(--adm-accent) px-[5px] text-[11px] font-extrabold text-white">
                   {alert}

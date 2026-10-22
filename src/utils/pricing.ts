@@ -1,6 +1,7 @@
 import type { CartItem } from '../types/cart';
 import type { Addon } from '../types/product';
-import type { OrderTotals, OrderType } from '../types/order';
+import type { OrderTotals } from '../types/order';
+import type { DeliveryQuote } from './delivery';
 
 export function calculateUnitPrice(basePrice: number, addons: Addon[]): number {
   return addons.reduce((sum, addon) => sum + addon.price, basePrice);
@@ -18,12 +19,13 @@ export function calculateSubtotal(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + calculateLineTotal(item), 0);
 }
 
-export function calculateOrderTotals(
-  items: CartItem[],
-  orderType: OrderType,
-  deliveryFee: number,
-): OrderTotals {
+export function calculateOrderTotals(items: CartItem[], delivery: DeliveryQuote): OrderTotals {
   const subtotal = calculateSubtotal(items);
-  const fee = orderType === 'delivery' ? deliveryFee : 0;
-  return { subtotal, deliveryFee: fee, total: subtotal + fee };
+  return {
+    subtotal,
+    deliveryFee: delivery.fee,
+    deliveryFeeOriginal: delivery.originalFee,
+    freeDelivery: delivery.freeDelivery,
+    total: subtotal + delivery.fee,
+  };
 }

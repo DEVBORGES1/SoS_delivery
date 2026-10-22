@@ -1,4 +1,5 @@
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
+import { ChevronDown } from 'lucide-react';
+import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { cn } from '../../../utils/cn';
 
 const CONTROL =
@@ -86,6 +87,45 @@ export function TextAreaField({
         )}
         {...textareaProps}
       />
+    </FieldShell>
+  );
+}
+
+type SelectFieldProps = CommonFieldProps &
+  Omit<SelectHTMLAttributes<HTMLSelectElement>, 'id' | 'className'> & { children: ReactNode };
+
+/** Lista de opções com o mesmo visual dos campos de texto (bairro no checkout). */
+export function SelectField({
+  id,
+  label,
+  optional,
+  error,
+  emphasizedLabel,
+  className,
+  children,
+  ...selectProps
+}: SelectFieldProps) {
+  return (
+    <FieldShell {...{ id, label, optional, error, emphasizedLabel, className }}>
+      <div className="relative">
+        <select
+          {...controlProps(id, error)}
+          className={cn(
+            CONTROL,
+            'h-[54px] cursor-pointer appearance-none pr-11 pl-4',
+            error ? 'border-danger-line' : 'border-line',
+          )}
+          {...selectProps}
+        >
+          {children}
+        </select>
+        <ChevronDown
+          size={18}
+          strokeWidth={2.5}
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-muted"
+        />
+      </div>
     </FieldShell>
   );
 }

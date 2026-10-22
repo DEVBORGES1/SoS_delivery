@@ -13,6 +13,16 @@ function formatLine(line: OrderLine): string[] {
 }
 
 function formatTotals(order: Order): string[] {
+  if (order.customer.orderType === 'delivery' && order.freeDelivery) {
+    const district = order.customer.district.trim();
+    return [
+      ...(district ? [`Bairro: ${district}`] : []),
+      'Taxa de entrega: GRÁTIS',
+      'Promoção de entrega grátis aplicada.',
+      `Subtotal: ${formatCurrency(order.subtotal)}`,
+      `*Total: ${formatCurrency(order.total)}*`,
+    ];
+  }
   const rows = [`Subtotal: ${formatCurrency(order.subtotal)}`];
   if (order.customer.orderType === 'delivery') {
     rows.push(`Taxa de entrega: ${order.deliveryFee ? formatCurrency(order.deliveryFee) : 'Grátis'}`);

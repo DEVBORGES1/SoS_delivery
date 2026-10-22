@@ -9,6 +9,9 @@ import {
   promotionToRow,
   settingsFromRow,
   settingsToRow,
+  zoneFromRow,
+  zoneToRow,
+  type DeliveryZoneRow,
   type OrderRow,
   type ProductRow,
   type PromotionRow,
@@ -17,7 +20,7 @@ import {
 import { useSettingsStore } from '../../stores/settingsStore';
 import type { AdminOrder, OrderStatus } from '../../types/order';
 import type { Product, Promotion } from '../../types/product';
-import type { StoreSettings } from '../../types/store';
+import type { DeliveryZone, StoreSettings } from '../../types/store';
 import { printOrderTicket } from './printAgent';
 import { usePrinterStore } from './printerStore';
 import { useOrderAlertStore } from './useOrderAlerts';
@@ -37,13 +40,17 @@ function sortOrders(orders: AdminOrder[]): AdminOrder[] {
   return [...orders].sort((a, b) => b.createdAt - a.createdAt);
 }
 
+function sortZones(zones: DeliveryZone[]): DeliveryZone[] {
+  return [...zones].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'pt-BR'));
+}
+
 /** Função nova do banco ainda não criada: o schema.sql atualizado não foi rodado. */
 function isMissingFunction(error: { code?: string; message?: string }): boolean {
   return error.code === 'PGRST202' || error.code === '42883' || /could not find the function/i.test(error.message ?? '');
 }
 
 /**
- * Estado do painel: cardápio, promoções, configurações e pedidos, com as
+ * Estado do painel: cardápio, promoções, bairros, configurações e pedidos, com as
  * funções que gravam no Supabase e o aviso ("toast") de cada ação.
  */
 export function useAdminData() {
@@ -51,6 +58,7 @@ export function useAdminData() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [settings, setSettingsState] = useState<StoreSettings>(defaultStoreSettings);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [zones, setZonesState] = useState<DeliveryZone[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -66,6 +74,12 @@ export function useAdminData() {
     setSettingsState(next);
     // Mantém o status (aberta/fechada) do painel igual ao do site.
     useSettingsStore.getState().setSettings(next);
+  }, []);
+
+  const applyZones = useCallback((next: DeliveryZone[]) => {
+    const sorted = sortZones(next);
+    setZonesState(sorted);
+    useSettingsStore.getState().setDeliveryZones(sorted);
   }, []);
 
   const receiveOrders = useCallback((next: AdminOrder[]) => {
@@ -94,9 +108,10 @@ export function useAdminData() {
       supabase.from('products').select('*').order('sort_order').order('name'),
       supabase.from('promotions').select('*').order('created_at', { ascending: false }),
       supabase.from('store_settings').select('*').eq('id', 1).maybeSingle<StoreSettingsRow>(),
-    ]).then(([productsResult, promotionsResult, settingsResult]) => {
+      supabase.from('delivery_zones').select('*').order('sort_order').order('name'),
+    ]).then(([productsResult, promotionsResult, settingsResult, zonesResult]) => {
       if (!active) return;
-      const error = productsResult.error ?? settingsResult.error ?? promotionsResult.error;
+      const error = productsResult.error ?? settingsResult.error ?? promotionsResult.error ?? zonesResult.error;
       if (error) {
         // Tabela ou coluna nova ainda não criada: o schema.sql atualizado não foi rodado.
         const outdated = /PGRST205|PGRST202|42703|42P01/.test(String((error as { code?: string }).code));
@@ -111,12 +126,34 @@ export function useAdminData() {
       setProducts(((productsResult.data ?? []) as ProductRow[]).map(productFromRow));
       setPromotions(((promotionsResult.data ?? []) as PromotionRow[]).map(promotionFromRow));
       if (settingsResult.data) applySettings(settingsFromRow(settingsResult.data, defaultStoreSettings));
+      applyZones(((zonesResult.data ?? []) as DeliveryZoneRow[]).map(zoneFromRow));
       setLoading(false);
     });
     return () => {
       active = false;
     };
-  }, [applySettings]);
+  }, [applySettings, applyZones]);
+
+  /**
+   * Relê a entrega grátis e os bairros ao voltar para a aba: outro administrador
+   * (ou outro aparelho) pode ter mudado. Só lê; nunca regrava nada.
+   */
+  useEffect(() => {
+    const client = supabase;
+    if (!client) return;
+    const onFocus = () => {
+      void Promise.all([
+        client.from('store_settings').select('*').eq('id', 1).maybeSingle<StoreSettingsRow>(),
+        client.from('delivery_zones').select('*').order('sort_order').order('name'),
+      ]).then(([settingsResult, zonesResult]) => {
+        if (settingsResult.data) applySettings(settingsFromRow(settingsResult.data, defaultStoreSettings));
+        if (!zonesResult.error && zonesResult.data)
+          applyZones((zonesResult.data as DeliveryZoneRow[]).map(zoneFromRow));
+      });
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [applySettings, applyZones]);
 
   // Pedidos em tempo real, com recarga periódica e ao voltar para a aba.
   useEffect(() => {
@@ -168,6 +205,78 @@ export function useAdminData() {
       return ok;
     },
     [settings, run, applySettings],
+  );
+
+  /**
+   * Liga ou desliga a entrega grátis para todos os bairros. Grava só essa coluna:
+   * as taxas dos bairros e o resto das configurações não são tocados. O banco só
+   * deixa administradores mudarem (sem permissão, nenhuma linha é alterada).
+   */
+  const setFreeDelivery = useCallback(
+    async (enabled: boolean) => {
+      const client = supabase;
+      if (!client) return false;
+      setSaving(true);
+      const { data, error } = await client
+        .from('store_settings')
+        .update({ free_delivery_enabled: enabled, free_delivery_updated_at: new Date().toISOString() })
+        .eq('id', 1)
+        .select('*');
+      setSaving(false);
+      const row = (data as StoreSettingsRow[] | null)?.[0];
+      if (error || !row) {
+        const outdated = error && /PGRST204|42703/.test(String((error as { code?: string }).code));
+        notify(
+          outdated
+            ? 'Banco desatualizado: rode o supabase/schema.sql de novo para ativar a entrega grátis.'
+            : error
+              ? describeError(error)
+              : 'Sem permissão para mudar a entrega grátis.',
+          'error',
+        );
+        return false;
+      }
+      applySettings(settingsFromRow(row, defaultStoreSettings));
+      setSavedAt(new Date());
+      notify(
+        enabled
+          ? 'Entrega grátis ativada para todos os bairros'
+          : 'Entrega grátis desativada · taxas dos bairros de volta',
+      );
+      return true;
+    },
+    [notify, applySettings],
+  );
+
+  const saveZone = useCallback(
+    async (zone: DeliveryZone, successText: string) => {
+      if (!supabase) return false;
+      const client = supabase;
+      const ok = await run(
+        () => client.from('delivery_zones').upsert({ ...zoneToRow(zone), updated_at: new Date().toISOString() }),
+        successText,
+      );
+      if (ok) {
+        applyZones(
+          zones.some((item) => item.id === zone.id)
+            ? zones.map((item) => (item.id === zone.id ? zone : item))
+            : [...zones, zone],
+        );
+      }
+      return ok;
+    },
+    [zones, run, applyZones],
+  );
+
+  const deleteZone = useCallback(
+    async (zone: DeliveryZone) => {
+      if (!supabase) return false;
+      const client = supabase;
+      const ok = await run(() => client.from('delivery_zones').delete().eq('id', zone.id), `${zone.name} removido`);
+      if (ok) applyZones(zones.filter((item) => item.id !== zone.id));
+      return ok;
+    },
+    [zones, run, applyZones],
   );
 
   const saveProduct = useCallback(
@@ -402,12 +511,16 @@ export function useAdminData() {
     promotions,
     settings,
     orders,
+    zones,
     loading,
     saving,
     savedAt,
     toast,
     notify,
     saveSettings,
+    setFreeDelivery,
+    saveZone,
+    deleteZone,
     saveProduct,
     deleteProduct,
     savePromotion,

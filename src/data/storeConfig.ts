@@ -41,6 +41,7 @@ export const defaultStoreSettings: StoreSettings = {
   deliveryEnabled: true,
   pickupEnabled: true,
   deliveryFee: 0,
+  freeDeliveryEnabled: false,
   deliveryEta: '~40 min',
   pickupEta: '~20 min',
   whatsapp: '5549988083394',

@@ -1,9 +1,11 @@
 import { formatCurrency } from '../../../utils/currency';
 import { calculateLineTotal } from '../../../utils/pricing';
-import { addonsText, feeLabel, feeValue, type OrderSummaryProps } from './summaryFormat';
+import { DeliveryFeeValue } from './DeliveryFeeValue';
+import { addonsText, deliverySavings, feeLabel, type OrderSummaryProps } from './summaryFormat';
 
 /** Resumo lateral fixo do checkout (desktop, a partir de 1024px). */
 export function OrderSummary({ items, totals, orderType }: OrderSummaryProps) {
+  const savings = deliverySavings(totals);
   return (
     <>
       <h2 className="font-display text-[26px] uppercase">Seu pedido</h2>
@@ -30,8 +32,16 @@ export function OrderSummary({ items, totals, orderType }: OrderSummaryProps) {
         </div>
         <div className="flex justify-between text-muted">
           <dt>{feeLabel(orderType)}</dt>
-          <dd>{feeValue(totals)}</dd>
+          <dd>
+            <DeliveryFeeValue totals={totals} orderType={orderType} />
+          </dd>
         </div>
+        {savings > 0 && (
+          <div className="flex justify-between text-success-ink">
+            <dt>Economia na entrega</dt>
+            <dd className="font-bold">{formatCurrency(savings)}</dd>
+          </div>
+        )}
         <div className="mt-1.5 flex items-baseline justify-between">
           <dt className="font-extrabold">Total</dt>
           <dd className="text-[28px] font-extrabold">{formatCurrency(totals.total)}</dd>

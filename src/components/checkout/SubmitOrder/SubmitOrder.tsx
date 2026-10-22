@@ -28,7 +28,7 @@ export function SubmitOrderButton({ label, disabled, onSubmit }: SubmitOrderButt
   );
 }
 
-export function SendErrorAlert() {
+function CheckoutAlert({ title, text }: { title: string; text: string }) {
   return (
     <div role="alert" className="flex items-start gap-3.5 rounded-cta border-[1.5px] border-accent bg-accent/14 px-[18px] py-4">
       <span
@@ -38,11 +38,28 @@ export function SendErrorAlert() {
         !
       </span>
       <div className="flex-1">
-        <p className="text-base font-extrabold">Não conseguimos abrir o WhatsApp</p>
-        <p className="mt-0.5 text-sm text-muted">
-          Verifique se o navegador bloqueou a nova aba e tente de novo. Seus dados continuam salvos.
-        </p>
+        <p className="text-base font-extrabold">{title}</p>
+        <p className="mt-0.5 text-sm text-muted">{text}</p>
       </div>
     </div>
+  );
+}
+
+export function SendErrorAlert() {
+  return (
+    <CheckoutAlert
+      title="Não conseguimos abrir o WhatsApp"
+      text="Verifique se o navegador bloqueou a nova aba e tente de novo. Seus dados continuam salvos."
+    />
+  );
+}
+
+/** A taxa de entrega mudou (promoção ligada ou desligada) com o checkout aberto. */
+export function FeeChangedAlert() {
+  return (
+    <CheckoutAlert
+      title="A taxa de entrega foi atualizada"
+      text="Confira o novo total do pedido e toque em enviar de novo."
+    />
   );
 }

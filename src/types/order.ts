@@ -31,7 +31,12 @@ export interface CheckoutSectionProps {
 
 export interface OrderTotals {
   subtotal: number;
+  /** Taxa de entrega cobrada (0 na retirada e durante a entrega grátis). */
   deliveryFee: number;
+  /** Taxa cadastrada para o bairro (ou a taxa única); `null` na retirada ou sem bairro escolhido. */
+  deliveryFeeOriginal: number | null;
+  /** Promoção de entrega grátis aplicada ao pedido. */
+  freeDelivery: boolean;
   total: number;
 }
 
@@ -98,7 +103,14 @@ export interface AdminOrder {
   notes: string;
   items: SavedOrderLine[];
   subtotal: number;
+  /** Taxa cobrada no pedido. */
   deliveryFee: number;
+  /** Bairro da entrega, como estava cadastrado ('' na retirada e em pedidos antigos). */
+  deliveryDistrict: string;
+  /** Taxa cadastrada no momento do pedido; `null` na retirada e em pedidos antigos. */
+  deliveryFeeOriginal: number | null;
+  /** A promoção de entrega grátis valeu para este pedido. */
+  freeDelivery: boolean;
   total: number;
   history: OrderHistoryEntry[];
   printStatus: PrintStatus;

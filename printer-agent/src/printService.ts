@@ -5,7 +5,7 @@ import { PrintJournal } from './journal.ts';
 import { ERROR_MESSAGES, PrintError, looksLikeThermal, type PrintErrorCode, type PrinterDriver, type PrinterInfo } from './printers/types.ts';
 import type { PrintRequest } from './validate.ts';
 
-export const AGENT_VERSION = '1.0.0';
+export const AGENT_VERSION = '1.1.0';
 
 export type PrinterConnection = 'connected' | 'disconnected' | 'not_found' | 'not_configured';
 

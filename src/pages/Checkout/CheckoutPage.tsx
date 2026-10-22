@@ -2,7 +2,7 @@ import { CheckoutForm } from '../../components/checkout/CheckoutForm/CheckoutFor
 import { OrderSummary } from '../../components/checkout/OrderSummary/OrderSummary';
 import { OrderSummaryAccordion } from '../../components/checkout/OrderSummary/OrderSummaryAccordion';
 import { ReturningCustomer } from '../../components/checkout/ReturningCustomer/ReturningCustomer';
-import { SendErrorAlert, SubmitOrderButton } from '../../components/checkout/SubmitOrder/SubmitOrder';
+import { FeeChangedAlert, SendErrorAlert, SubmitOrderButton } from '../../components/checkout/SubmitOrder/SubmitOrder';
 import { SectionLink } from '../../components/layout/SectionLink';
 import { storeConfig } from '../../data/storeConfig';
 import { useCheckout } from '../../hooks/useCheckout';
@@ -38,6 +38,7 @@ export function CheckoutPage() {
             )}
             <CheckoutForm form={checkout.form} errors={checkout.errors} setField={checkout.setField} />
             {checkout.hasSendError && <SendErrorAlert />}
+            {checkout.feeChanged && <FeeChangedAlert />}
 
             <div className="mt-1 flex flex-col gap-2.5 lg:hidden">
               <div className="flex items-baseline justify-between px-1">

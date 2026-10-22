@@ -22,12 +22,18 @@ export function getOrderUrl(order: Order): string {
   return buildWhatsAppUrl(buildOrderMessage(order));
 }
 
+/** Aba reservada no clique: `open` leva ao WhatsApp, `close` desiste do envio. */
+export interface WhatsAppTab {
+  open: (url: string) => void;
+  close: () => void;
+}
+
 /**
  * Abre uma aba vazia na hora do clique (antes de qualquer espera, para o
- * navegador não bloquear) e devolve uma função que a leva ao WhatsApp.
+ * navegador não bloquear) e devolve como levá-la ao WhatsApp ou fechá-la.
  * Retorna `null` quando o navegador bloqueia a nova aba.
  */
-export function reserveWhatsAppTab(): ((url: string) => void) | null {
+export function reserveWhatsAppTab(): WhatsAppTab | null {
   const tab = window.open('', '_blank');
   if (!tab) return null;
   try {
@@ -37,8 +43,11 @@ export function reserveWhatsAppTab(): ((url: string) => void) | null {
   } catch {
     // A aba pode não permitir escrita; o redirecionamento continua funcionando.
   }
-  return (url) => {
-    tab.opener = null;
-    tab.location.href = url;
+  return {
+    open: (url) => {
+      tab.opener = null;
+      tab.location.href = url;
+    },
+    close: () => tab.close(),
   };
 }

@@ -52,8 +52,13 @@ export interface StoreSettings {
   weeklyHours: DayHours[];
   deliveryEnabled: boolean;
   pickupEnabled: boolean;
-  /** Taxa de entrega em reais. 0 = grátis. */
+  /** Taxa única de entrega em reais, usada enquanto nenhum bairro está ativo. 0 = grátis. */
   deliveryFee: number;
+  /**
+   * Promoção de entrega grátis para todos os bairros. Só zera a cobrança:
+   * as taxas cadastradas continuam as mesmas. Muda só pelo `setFreeDelivery` do painel.
+   */
+  freeDeliveryEnabled: boolean;
   deliveryEta: string;
   pickupEta: string;
   /** Número que recebe os pedidos, só dígitos com DDI + DDD (ex.: 5549988083394). */
@@ -72,4 +77,14 @@ export interface StoreStatus {
   /** Ex.: "19h". */
   nextOpenTime: string;
   today: Weekday;
+}
+
+/** Bairro atendido e a sua taxa de entrega (tabela `delivery_zones`). */
+export interface DeliveryZone {
+  id: string;
+  name: string;
+  fee: number;
+  /** Bairro inativo some do checkout, mas a taxa fica guardada. */
+  active: boolean;
+  sortOrder: number;
 }

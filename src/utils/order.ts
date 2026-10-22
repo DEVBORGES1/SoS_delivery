@@ -1,6 +1,7 @@
 import type { CartItem } from '../types/cart';
 import type { Category } from '../types/product';
 import type { CheckoutFormData, Order, OrderType, PaymentMethod } from '../types/order';
+import type { DeliveryQuote } from './delivery';
 import { calculateLineTotal, calculateOrderTotals } from './pricing';
 
 export const ORDER_TYPE_LABELS: Record<OrderType, string> = {
@@ -31,13 +32,14 @@ export function createOrder(
   form: CheckoutFormData,
   items: CartItem[],
   categories: Category[],
-  deliveryFee: number,
+  delivery: DeliveryQuote,
 ): Order {
   const emojiByCategory = new Map(categories.map((category) => [category.id, category.emoji]));
 
   return {
     id: generateOrderId(),
-    customer: form,
+    // Com bairros cadastrados, o bairro vai com o nome exato do cadastro.
+    customer: delivery.district ? { ...form, district: delivery.district } : form,
     items: items.map((item) => ({
       emoji: emojiByCategory.get(item.categoryId) ?? DEFAULT_EMOJI,
       name: item.name,
@@ -46,6 +48,6 @@ export function createOrder(
       note: item.note,
       lineTotal: calculateLineTotal(item),
     })),
-    ...calculateOrderTotals(items, form.orderType, deliveryFee),
+    ...calculateOrderTotals(items, delivery),
   };
 }

@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { AdminShell } from '../../components/admin/AdminShell';
 import type { AdminTab } from '../../components/admin/adminTabs';
+import { DeliveryFeesTab } from '../../components/admin/DeliveryFeesTab';
 import { BTN_PRIMARY, Field, INPUT } from '../../components/admin/adminUi';
 import { MenuTab } from '../../components/admin/MenuTab';
 import { NewOrderAlert } from '../../components/admin/NewOrderAlert';
@@ -139,6 +140,7 @@ function Dashboard() {
       newOrders={data.orders.filter((order) => order.status === 'novo').length}
       livePromos={data.promotions.filter((promotion) => isPromotionLive(promotion)).length}
       statusOverride={data.settings.statusOverride}
+      freeDelivery={data.settings.freeDeliveryEnabled}
       savedAt={data.savedAt}
       toast={data.toast}
       onSignOut={signOut}
@@ -166,6 +168,7 @@ function Dashboard() {
           onEdit={(promotion) => setEditing({ kind: 'promotion', promotion })}
         />
       )}
+      {tab === 'fees' && <DeliveryFeesTab data={data} />}
       {tab === 'store' && <StoreTab data={data} onSignOut={signOut} />}
 
       {editing?.kind === 'product' && (

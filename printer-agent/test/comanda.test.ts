@@ -113,6 +113,33 @@ describe('comanda do pedido', () => {
     assert.ok(!text.includes('OBSERVAÇÃO'));
   });
 
+  it('entrega grátis: bairro, taxa GRÁTIS e aviso da promoção', () => {
+    const doc = buildOrderTicket(
+      deliveryTicket({ subtotal: 59.8, deliveryFee: 0, deliveryFeeOriginal: 10, freeDelivery: true, total: 59.8 }),
+      layout,
+    );
+    assertFits(doc);
+    const text = doc.toText();
+    const lines = text.split('\n');
+    assert.ok(lines.includes(`Bairro${' '.repeat(20)}Centro`), 'bairro alinhado');
+    assert.ok(lines.includes(`Taxa de entrega${' '.repeat(11)}GRÁTIS`), 'taxa grátis');
+    assert.ok(text.includes('Promoção de entrega grátis'), 'aviso da promoção');
+    assert.ok(lines.includes(`Subtotal${' '.repeat(16)}R$ 59,80`));
+    assert.ok(lines.includes(`TOTAL${' '.repeat(19)}R$ 59,80`));
+    assert.ok(!text.includes('R$ 10,00'), 'não mostra a taxa original como cobrada');
+  });
+
+  it('sem promoção, a entrega mostra a taxa do bairro', () => {
+    const text = buildOrderTicket(deliveryTicket(), layout).toText();
+    assert.ok(text.split('\n').includes(`Entrega${' '.repeat(17)}R$ 10,00`));
+    assert.ok(!text.includes('Promoção de entrega'));
+  });
+
+  it('retirada nunca mostra a promoção de entrega', () => {
+    const text = buildOrderTicket(pickupTicket({ freeDelivery: true }), layout).toText();
+    assert.ok(!text.includes('GRÁTIS') && !text.includes('Promoção de entrega'));
+  });
+
   it('muitos produtos continuam dentro da largura', () => {
     const items = Array.from({ length: 50 }, (_, index) => ({
       quantity: (index % 9) + 1,

@@ -73,7 +73,12 @@ export function buildOrderTicket(ticket: OrderTicket, options: LayoutOptions): T
   });
   doc.rule();
 
-  if (delivery || ticket.subtotal !== ticket.total) {
+  if (delivery && ticket.freeDelivery) {
+    if (ticket.district) doc.pair('Bairro', ticket.district);
+    doc.pair('Taxa de entrega', 'GRÁTIS', { bold: true });
+    doc.text('Promoção de entrega grátis aplicada.');
+    doc.pair('Subtotal', formatMoney(ticket.subtotal));
+  } else if (delivery || ticket.subtotal !== ticket.total) {
     doc.pair('Subtotal', formatMoney(ticket.subtotal));
     if (delivery) doc.pair('Entrega', ticket.deliveryFee ? formatMoney(ticket.deliveryFee) : 'Grátis');
   }
